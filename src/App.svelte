@@ -6,9 +6,10 @@
 	import { calcCrow, bearing } from './utils/distance';
 	import { countries as c, sanitizeCountryName } from './utils/countries';
 
-	const countries = c.filter(({ code }) =>
-		['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
-	);
+	const countries = c;
+	// .filter(({ code }) =>
+	// 	['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
+	// );
 
 	const AWAIT_ANIMATION = 1000;
 
@@ -185,49 +186,53 @@
 			<span class="you-are" in:typewriter={{ speed: 2 }}>{enunciate}</span>
 		{/key}
 	</div>
-	<input
-		class="new-answer-input"
-		class:disabled={answering}
-		type="text"
-		placeholder="type a country"
-		on:keypress={(e) => {
-			if (e.key === 'Enter') tryAnswer(newAnswer);
-		}}
-		bind:value={newAnswer}
-	/>
-	{#if newAnswer}
-		<div class="select">
-			{#each countries
-				.filter(({ name }) => sanitizeCountryName(name).includes(sanitizeCountryName(newAnswer)))
-				.splice(0, 4) as country, i}
-				<div class="item" transition:slide on:click={() => tryAnswer(country.name)}>
-					{country.name}
-				</div>
-			{/each}
-		</div>
-	{/if}
-	<ul class="answers" bind:this={answersList}>
-		{#each answerHistoric as answer, i}
-			<li class="answer">
-				<div class="name">
-					{answer.guess.name}
-				</div>
-				<div class="name">
-					({answer.target.name})
-				</div>
-				<div class="points" class:success={answer.points > 0} class:danger={answer.points < 0}>
-					{num(answer.points)}
-				</div>
-			</li>
-		{/each}
-		{#if answerHistoric.length > 0}
-			<li class="answer bold">
-				<div>Guess:</div>
-				<div>Answer:</div>
-				<div>Points:</div>
-			</li>
+	<div class="autocomplete">
+		{#if newAnswer}
+			<div class="select">
+				{#each countries
+					.filter(({ name }) => sanitizeCountryName(name).includes(sanitizeCountryName(newAnswer)))
+					.splice(0, 4) as country, i}
+					<div class="item" transition:slide on:click={() => tryAnswer(country.name)}>
+						{country.name}
+					</div>
+				{/each}
+			</div>
 		{/if}
-	</ul>
+		<input
+			class="new-answer-input"
+			class:disabled={answering}
+			type="text"
+			placeholder="type a country"
+			on:keypress={(e) => {
+				if (e.key === 'Enter') tryAnswer(newAnswer);
+			}}
+			bind:value={newAnswer}
+		/>
+	</div>
+	{#if false}
+		<ul class="answers" bind:this={answersList}>
+			{#each answerHistoric as answer, i}
+				<li class="answer">
+					<div class="name">
+						{answer.guess.name}
+					</div>
+					<div class="name">
+						({answer.target.name})
+					</div>
+					<div class="points" class:success={answer.points > 0} class:danger={answer.points < 0}>
+						{num(answer.points)}
+					</div>
+				</li>
+			{/each}
+			{#if answerHistoric.length > 0}
+				<li class="answer bold">
+					<div>Guess:</div>
+					<div>Answer:</div>
+					<div>Points:</div>
+				</li>
+			{/if}
+		</ul>
+	{/if}
 </div>
 
 <style>
@@ -288,10 +293,11 @@
 	}
 
 	.new-answer-input {
-		width: 100%;
-		margin: 2.5vh 0;
+		margin: 1rem 0;
+		padding: 0.25rem;
 		box-sizing: border-box;
-		font-size: 1.25rem;
+		border-color: lightgray;
+		font-size: 1.2rem;
 		line-height: 150%;
 	}
 
@@ -342,14 +348,30 @@
 		color: var(--danger-color);
 	}
 
+	.autocomplete {
+		position: relative;
+	}
+
 	.select {
-		width: 100%;
 		display: flex;
-		flex-direction: column;
+		flex-direction: column-reverse;
 		align-items: center;
+		position: absolute;
+		border: solid 1px lightgray;
+		border-radius: 1rem 1rem 0 0;
+		bottom: 3.8rem;
+		background-color: white;
+		left: 0;
+		right: 0;
 	}
 
 	.select .item {
 		padding: 1rem;
+		border-bottom: solid 1px lightgray;
+		box-sizing: border-box;
+		width: 100%;
+	}
+	.select .item:first-child {
+		border: none;
 	}
 </style>
