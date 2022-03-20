@@ -1,0 +1,25 @@
+{
+  "name": "to-longe",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint --fix --ignore-path .gitignore . --ext .js,.ts,.svelte"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.40",
+    "@typescript-eslint/eslint-plugin": "^5.15.0",
+    "@typescript-eslint/parser": "^5.15.0",
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-svelte3": "^3.4.1",
+    "prettier": "^2.6.0",
+    "prettier-plugin-svelte": "^2.6.0",
+    "svelte": "^3.46.4",
+    "typescript": "^4.6.2",
+    "vite": "^2.8.6"
+  }
+}
