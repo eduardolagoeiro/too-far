@@ -23,7 +23,7 @@
 	let targetCountry = leftCountries[0];
 
 	let newAnswer = '';
-	let answers = [];
+	let answerHistoric = [];
 
 	let answering = false;
 	let plus;
@@ -57,16 +57,18 @@
 		answering = true;
 		await sleep(200);
 
-		answers = [
-			...answers,
+		const dist = calcCrow(guess, targetCountry);
+
+		answerHistoric = [
+			...answerHistoric,
 			{
 				ref: refCountry,
 				guess: guess,
 				target: targetCountry,
-				points: Math.floor(10000 - calcCrow(guess, targetCountry)) / 10
+				points: Math.floor(10000 - dist) / 10
 			}
 		];
-		plus = answers[answers.length - 1].points;
+		plus = answerHistoric[answerHistoric.length - 1].points;
 
 		refCountry = guess;
 
@@ -77,7 +79,7 @@
 		answering = false;
 	}
 
-	$: totalPoints = num(answers.reduce((acc, a) => acc + a.points, 0));
+	$: totalPoints = num(answerHistoric.reduce((acc, a) => acc + a.points, 0));
 
 	$: distance = calcCrow(refCountry, targetCountry);
 	$: direction = bearing(refCountry, targetCountry);
@@ -92,17 +94,18 @@
 <div class="container">
 	<div class="total-points" class:danger={totalPoints < 0}>
 		{#key totalPoints}
-			<span transition:fly={{ y: 20 }}>
+			<span in:fly={{ y: 20 }} style="display: inline-block;">
 				{totalPoints}
 			</span>
 		{/key}
-		{#if !isNaN(plus)}
+		{#if plus !== undefined}
 			<span
+				style="position: absolute;"
 				in:fly={{ y: 25, duration: 250, easing: linear }}
 				out:fly={{ y: -25, duration: 250, easing: linear }}
-				on:introend={() => (plus = undefined)}
 				class="plus-points"
 				class:danger={plus < 0}
+				on:introend={() => (plus = undefined)}
 			>
 				{num(plus)}
 			</span>
@@ -130,23 +133,17 @@
 		bind:value={newAnswer}
 	/>
 
-	{#if answers.length > 0}
-		guesses:
+	{#if answerHistoric.length > 0}
+		Answers:
 	{/if}
 	<ul class="answers">
-		{#each answers as answer, i}
+		{#each answerHistoric as answer, i}
 			<li class="answer">
 				<div class="name">
-					{answer.ref.name}
-				</div>
-				<div class="name">
-					{answer.guess.name}
+					{answer.target.name}
 				</div>
 				<div class="points" class:danger={answer.points < 0}>
 					{num(answer.points)}
-				</div>
-				<div class="name">
-					({answer.target.name})
 				</div>
 			</li>
 		{/each}
@@ -182,7 +179,6 @@
 
 	.plus-points {
 		font-size: 1.5rem;
-		position: absolute;
 		color: var(--sucess-color);
 	}
 	.plus-points.danger {
@@ -221,9 +217,11 @@
 	}
 
 	.answers {
-		width: 100%;
+		width: 70%;
 		display: flex;
-		flex-direction: column;
+		flex-direction: column-reverse;
+		align-items: center;
+		justify-content: space-between;
 		gap: 1.5vh;
 		font-size: 1rem;
 		line-height: 1rem;
@@ -234,10 +232,9 @@
 	}
 
 	.answer {
-		width: 100%;
 		display: flex;
+		width: 100%;
 		justify-content: space-between;
-		align-items: flex-start;
 		gap: 5vw;
 	}
 
