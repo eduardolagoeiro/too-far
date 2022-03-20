@@ -1,17 +1,53 @@
 <script>
 	import { linear } from 'svelte/easing';
-	import { fly } from 'svelte/transition';
-	import logo from './assets/svelte.png';
+	import { fly, blur } from 'svelte/transition';
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
 	import { calcCrow, bearing } from './utils/distance';
-	import { countries, sanitizeCountryName } from './utils/countries';
+	import { countries as c, sanitizeCountryName } from './utils/countries';
+
+	const countries = c.filter(({ code }) =>
+		['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
+	);
+
+	const AWAIT_ANIMATION = 1000;
+
+	const IMG_ANIM_DUR = 1000;
+	const IMG_ANIM_DELAY = 500;
+
+	const HISTORIC_ANIM_DUR = 400;
+
+	let IMG_ANIM_X_OFFSET = 0;
+	let IMG_ANIM_Y_OFFSET = 0;
+
+	const ARROW_ANIM_DUR = 1000;
+	const ARROW_ANIM_DELAY = 500;
+
+	function typewriter(node, { speed = 1 }) {
+		const valid = node.childNodes.length === 1 && node.childNodes[0].nodeType === Node.TEXT_NODE;
+
+		if (!valid) {
+			throw new Error(`This transition only works on elements with a single text node child`);
+		}
+
+		const text = node.textContent;
+		const duration = text.length / (speed * 0.01);
+
+		return {
+			duration,
+			tick: (t) => {
+				const i = Math.trunc(text.length * t);
+				node.textContent = text.slice(0, i);
+			}
+		};
+	}
 
 	function getImgFromCode(code) {
-		return logo;
+		return `/maps/${code.toLowerCase()}.svg`;
 	}
 
 	function num(raw) {
+		if (raw === 0) return '0';
 		return raw > 0 ? `+${raw.toFixed(0)}` : raw.toFixed(0);
 	}
 
@@ -22,6 +58,7 @@
 	// always get target from index 0
 	let targetCountry = leftCountries[0];
 
+	let newAnswerInput;
 	let newAnswer = '';
 	let answerHistoric = [];
 
@@ -70,12 +107,19 @@
 		];
 		plus = answerHistoric[answerHistoric.length - 1].points;
 
+		const newTarget = leftCountries[0];
+		IMG_ANIM_X_OFFSET = 10 * (newTarget.longitude - targetCountry.longitude);
+		IMG_ANIM_Y_OFFSET = -10 * (newTarget.latitude - targetCountry.latitude);
+
 		refCountry = guess;
 
-		targetCountry = leftCountries[0];
+		targetCountry = newTarget;
 
 		newAnswer = '';
 
+		newAnswerInput?.focus();
+
+		await sleep(AWAIT_ANIMATION);
 		answering = false;
 	}
 
@@ -89,40 +133,50 @@
 	$: {
 		console.log({ refCountry, targetCountry, distance, direction });
 	}
+
+	$: enunciate = `New guess is ${distance.toFixed(0)} Km from ${refCountry.name}`;
 </script>
 
 <div class="container">
-	<div class="total-points" class:danger={totalPoints < 0}>
-		{#key totalPoints}
-			<span in:fly={{ y: 20 }} style="display: inline-block;">
-				{totalPoints}
-			</span>
-		{/key}
-		{#if plus !== undefined}
-			<span
+	<div class="guessing-img">
+		{#key targetImg}
+			<img
+				in:fly={{
+					x: IMG_ANIM_X_OFFSET,
+					y: IMG_ANIM_Y_OFFSET,
+					duration: IMG_ANIM_DUR,
+					delay: IMG_ANIM_DELAY,
+					easing: linear
+				}}
+				out:fly={{
+					x: -IMG_ANIM_X_OFFSET,
+					y: -IMG_ANIM_Y_OFFSET,
+					duration: IMG_ANIM_DUR,
+					delay: IMG_ANIM_DELAY,
+					easing: linear
+				}}
 				style="position: absolute;"
-				in:fly={{ y: 25, duration: 250, easing: linear }}
-				out:fly={{ y: -25, duration: 250, easing: linear }}
-				class="plus-points"
-				class:danger={plus < 0}
-				on:introend={() => (plus = undefined)}
-			>
-				{num(plus)}
-			</span>
-		{/if}
+				src={targetImg}
+				class="guessing-img"
+				alt="a territory"
+			/>
+		{/key}
 	</div>
-	<img src={targetImg} class="guessing-img" alt="a territory" />
 	<div class="distance">
 		<img
 			src={arrow}
 			class="arrow"
 			alt="an arrow"
-			style={`transform: rotate(${direction.toFixed(2)}deg)`}
+			style={`transform: rotate(${direction.toFixed(2)}deg);
+			transition-delay: ${ARROW_ANIM_DELAY / 1000}s;
+			transition-duration: ${ARROW_ANIM_DUR / 1000}s;`}
 		/>
-		<span class="km">{distance.toFixed(0)} km</span>
-		<span class="you-are">New guess is {distance.toFixed(0)} km far from {refCountry.name}</span>
+		{#key enunciate}
+			<span class="you-are" in:typewriter={{ speed: 2 }}>{enunciate}</span>
+		{/key}
 	</div>
 	<input
+		bind:this={newAnswerInput}
 		class="new-answer-input"
 		disabled={answering}
 		type="text"
@@ -138,12 +192,15 @@
 	{/if}
 	<ul class="answers">
 		{#each answerHistoric as answer, i}
-			<li class="answer">
+			<li class="answer" in:fly={{ y: -10, duration: HISTORIC_ANIM_DUR }}>
 				<div class="name">
 					{answer.target.name}
 				</div>
-				<div class="points" class:danger={answer.points < 0}>
+				<div class="points" class:success={answer.points < 0} class:danger={answer.points < 0}>
 					{num(answer.points)}
+				</div>
+				<div class="name">
+					({answer.target.name})
 				</div>
 			</li>
 		{/each}
@@ -169,27 +226,12 @@
 		align-items: center;
 	}
 
-	.total-points {
-		font-size: 2rem;
-		color: var(--main-color);
-	}
-	.total-points.danger {
-		color: var(--danger-color);
-	}
-
-	.plus-points {
-		font-size: 1.5rem;
-		color: var(--sucess-color);
-	}
-	.plus-points.danger {
-		color: var(--danger-color);
-	}
-
 	.distance {
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex-direction: column;
+		margin-top: 2vh;
 		gap: 2vh;
 		text-align: center;
 	}
@@ -197,15 +239,17 @@
 	.distance .arrow {
 		width: max(5vh, 24px);
 		height: max(5vh, 24px);
-		transition-duration: 200ms;
+		transition: transform;
 	}
 
-	.distance .km {
-		font-size: 1.5rem;
+	.distance .you-are {
+		min-height: 1.5rem;
+		line-height: 1.5rem;
 	}
 
 	.guessing-img {
 		width: 40vh;
+		height: 40vh;
 	}
 
 	.new-answer-input {
@@ -240,11 +284,12 @@
 
 	.answer .name {
 		text-overflow: ellipsis;
+		line-height: 120%;
 		white-space: nowrap;
-		overflow: hidden;
+		overflow-x: hidden;
 	}
 
-	.answer .points {
+	.answer .points.success {
 		color: var(--sucess-color);
 	}
 
