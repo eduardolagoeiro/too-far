@@ -1,4 +1,6 @@
 <script>
+	import { linear } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
 	import logo from './assets/svelte.png';
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
@@ -24,6 +26,7 @@
 	let answers = [];
 
 	let answering = false;
+	let plus;
 
 	async function tryAnswer() {
 		if (!newAnswer) {
@@ -46,7 +49,7 @@
 		const [guess] = leftCountries.splice(foundIndex, 1);
 
 		// if guess is not target
-		if (leftCountries[foundIndex].code !== targetCountry.code) {
+		if (foundIndex !== 0) {
 			// remove target from guess
 			leftCountries.splice(0, 1);
 		}
@@ -63,6 +66,7 @@
 				points: Math.floor(10000 - calcCrow(guess, targetCountry)) / 10
 			}
 		];
+		plus = answers[answers.length - 1].points;
 
 		refCountry = guess;
 
@@ -73,7 +77,7 @@
 		answering = false;
 	}
 
-	$: totalPoints = answers.reduce((acc, a) => acc + a.points, 0);
+	$: totalPoints = num(answers.reduce((acc, a) => acc + a.points, 0));
 
 	$: distance = calcCrow(refCountry, targetCountry);
 	$: direction = bearing(refCountry, targetCountry);
@@ -87,10 +91,20 @@
 
 <div class="container">
 	<div class="total-points" class:danger={totalPoints < 0}>
-		{num(totalPoints)}
-		{#if answers.length > 0}
-			<span class="plus-points" class:danger={answers[answers.length - 1].points < 0}>
-				{num(answers[answers.length - 1].points)}
+		{#key totalPoints}
+			<span transition:fly={{ y: 20 }}>
+				{totalPoints}
+			</span>
+		{/key}
+		{#if !isNaN(plus)}
+			<span
+				in:fly={{ y: 25, duration: 250, easing: linear }}
+				out:fly={{ y: -25, duration: 250, easing: linear }}
+				on:introend={() => (plus = undefined)}
+				class="plus-points"
+				class:danger={plus < 0}
+			>
+				{num(plus)}
 			</span>
 		{/if}
 	</div>
