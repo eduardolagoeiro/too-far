@@ -1,6 +1,6 @@
 <script>
 	import { linear } from 'svelte/easing';
-	import { fly, blur } from 'svelte/transition';
+	import { fly, fade, slide } from 'svelte/transition';
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
 	import { calcCrow, bearing } from './utils/distance';
@@ -58,29 +58,36 @@
 	// always get target from index 0
 	let targetCountry = leftCountries[0];
 
-	let newAnswerInput;
 	let newAnswer = '';
 	let answerHistoric = [];
+	let answersList;
 
 	let answering = false;
 	let plus;
+	let preEnunciate;
+	let streak = 0;
 
-	async function tryAnswer() {
-		if (!newAnswer) {
-			console.log({ newAnswer });
+	async function tryAnswer(value) {
+		newAnswer = '';
+		if (!value || answering) {
+			console.log({ value });
 			// TODO: alert
 			return;
 		}
 
 		const foundIndex = leftCountries.findIndex(
-			({ name }) => sanitizeCountryName(name) === sanitizeCountryName(newAnswer)
+			({ name }) => sanitizeCountryName(name) === sanitizeCountryName(value)
 		);
 
 		if (foundIndex === -1) {
-			console.log({ foundIndex, newAnswer });
+			console.log({ foundIndex, value });
 			// TODO: alert
 			return;
 		}
+
+		const isRight = foundIndex === 0;
+
+		isRight ? streak++ : (streak = 0);
 
 		const guess = leftCountries[foundIndex];
 
@@ -88,7 +95,6 @@
 		leftCountries.splice(0, 1);
 
 		answering = true;
-		await sleep(200);
 
 		const dist = calcCrow(guess, targetCountry);
 
@@ -103,6 +109,11 @@
 		];
 		plus = answerHistoric[answerHistoric.length - 1].points;
 
+		preEnunciate = isRight
+			? `On point!${streak > 1 ? ` (x${streak})` : ''}`
+			: `Right answer was: ${targetCountry.name}.`;
+		await sleep(AWAIT_ANIMATION);
+
 		const newTarget = leftCountries[0];
 		IMG_ANIM_X_OFFSET = 10 * (newTarget.longitude - targetCountry.longitude);
 		IMG_ANIM_Y_OFFSET = -10 * (newTarget.latitude - targetCountry.latitude);
@@ -111,9 +122,7 @@
 
 		targetCountry = newTarget;
 
-		newAnswer = '';
-
-		newAnswerInput?.focus();
+		if (answersList) answersList.scrollTop = -10000;
 
 		await sleep(AWAIT_ANIMATION);
 		answering = false;
@@ -130,11 +139,11 @@
 		console.log({ refCountry, targetCountry, distance, direction });
 	}
 
-	$: enunciate = `New guess is ${distance.toFixed(0)} Km from ${refCountry.name}`;
+	$: enunciate = `New guess is ${distance.toFixed(0)} Km from ${refCountry.name}.`;
 </script>
 
 <div class="container">
-	<div class="guessing-img">
+	<div class="guessing-img-wrapper">
 		{#key targetImg}
 			<img
 				in:fly={{
@@ -167,25 +176,39 @@
 			transition-delay: ${ARROW_ANIM_DELAY / 1000}s;
 			transition-duration: ${ARROW_ANIM_DUR / 1000}s;`}
 		/>
+		{#key preEnunciate}
+			{#if preEnunciate}
+				<span class="you-are" in:fade>{preEnunciate}</span>
+			{/if}
+		{/key}
 		{#key enunciate}
 			<span class="you-are" in:typewriter={{ speed: 2 }}>{enunciate}</span>
 		{/key}
 	</div>
 	<input
-		bind:this={newAnswerInput}
 		class="new-answer-input"
-		disabled={answering}
+		class:disabled={answering}
 		type="text"
 		placeholder="type a country"
 		on:keypress={(e) => {
-			if (e.key === 'Enter') tryAnswer();
+			if (e.key === 'Enter') tryAnswer(newAnswer);
 		}}
 		bind:value={newAnswer}
 	/>
-
-	<ul class="answers">
+	{#if newAnswer}
+		<div class="select">
+			{#each countries
+				.filter(({ name }) => sanitizeCountryName(name).includes(sanitizeCountryName(newAnswer)))
+				.splice(0, 4) as country, i}
+				<div class="item" transition:slide on:click={() => tryAnswer(country.name)}>
+					{country.name}
+				</div>
+			{/each}
+		</div>
+	{/if}
+	<ul class="answers" bind:this={answersList}>
 		{#each answerHistoric as answer, i}
-			<li class="answer" in:fly={{ y: -10, duration: HISTORIC_ANIM_DUR }}>
+			<li class="answer">
 				<div class="name">
 					{answer.guess.name}
 				</div>
@@ -198,7 +221,7 @@
 			</li>
 		{/each}
 		{#if answerHistoric.length > 0}
-			<li class="answer bold" in:fly={{ y: -10, duration: HISTORIC_ANIM_DUR }}>
+			<li class="answer bold">
 				<div>Guess:</div>
 				<div>Answer:</div>
 				<div>Points:</div>
@@ -224,6 +247,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		min-height: 80vh;
 	}
 
 	.distance {
@@ -247,9 +271,20 @@
 		line-height: 1.5rem;
 	}
 
+	.guessing-img-wrapper {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		min-height: 40vh;
+		position: relative;
+		margin-bottom: 1vh;
+		flex-grow: 2;
+	}
+
 	.guessing-img {
-		width: 40vh;
-		height: 40vh;
+		width: 100%;
+		height: 100%;
 	}
 
 	.new-answer-input {
@@ -305,5 +340,16 @@
 
 	.answer .points.danger {
 		color: var(--danger-color);
+	}
+
+	.select {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.select .item {
+		padding: 1rem;
 	}
 </style>

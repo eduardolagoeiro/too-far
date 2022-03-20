@@ -3,7 +3,7 @@
 ### milestones
 
 - [x] add images
-- [ ] search while typing
+- [x] search while typing
 - [ ] error alerts
 - [ ] highscore
 - [ ] end game when 10 times
