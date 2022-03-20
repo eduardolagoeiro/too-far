@@ -53,7 +53,7 @@
 
 	const leftCountries = [...countries].sort(() => (Math.random() > 0.5 ? 1 : -1));
 
-	let [refCountry] = leftCountries.splice(0, 1);
+	let refCountry = leftCountries[leftCountries.length - 1];
 
 	// always get target from index 0
 	let targetCountry = leftCountries[0];
@@ -82,14 +82,10 @@
 			return;
 		}
 
-		// remove the guess/target from left countries
-		const [guess] = leftCountries.splice(foundIndex, 1);
+		const guess = leftCountries[foundIndex];
 
-		// if guess is not target
-		if (foundIndex !== 0) {
-			// remove target from guess
-			leftCountries.splice(0, 1);
-		}
+		// remove target from guess
+		leftCountries.splice(0, 1);
 
 		answering = true;
 		await sleep(200);
@@ -111,7 +107,7 @@
 		IMG_ANIM_X_OFFSET = 10 * (newTarget.longitude - targetCountry.longitude);
 		IMG_ANIM_Y_OFFSET = -10 * (newTarget.latitude - targetCountry.latitude);
 
-		refCountry = guess;
+		refCountry = targetCountry;
 
 		targetCountry = newTarget;
 
@@ -187,23 +183,27 @@
 		bind:value={newAnswer}
 	/>
 
-	{#if answerHistoric.length > 0}
-		Answers:
-	{/if}
 	<ul class="answers">
 		{#each answerHistoric as answer, i}
 			<li class="answer" in:fly={{ y: -10, duration: HISTORIC_ANIM_DUR }}>
 				<div class="name">
-					{answer.target.name}
-				</div>
-				<div class="points" class:success={answer.points < 0} class:danger={answer.points < 0}>
-					{num(answer.points)}
+					{answer.guess.name}
 				</div>
 				<div class="name">
 					({answer.target.name})
 				</div>
+				<div class="points" class:success={answer.points > 0} class:danger={answer.points < 0}>
+					{num(answer.points)}
+				</div>
 			</li>
 		{/each}
+		{#if answerHistoric.length > 0}
+			<li class="answer bold" in:fly={{ y: -10, duration: HISTORIC_ANIM_DUR }}>
+				<div>Guess:</div>
+				<div>Answer:</div>
+				<div>Points:</div>
+			</li>
+		{/if}
 	</ul>
 </div>
 
@@ -260,8 +260,12 @@
 		line-height: 150%;
 	}
 
+	.bold {
+		font-weight: 600;
+	}
+
 	.answers {
-		width: 70%;
+		width: 90%;
 		display: flex;
 		flex-direction: column-reverse;
 		align-items: center;
@@ -276,10 +280,16 @@
 	}
 
 	.answer {
-		display: flex;
-		width: 100%;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
 		justify-content: space-between;
+		width: 100%;
 		gap: 5vw;
+		text-align: left;
+	}
+
+	.answer :last-child {
+		width: 30%;
 	}
 
 	.answer .name {
