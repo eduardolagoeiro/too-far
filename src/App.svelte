@@ -1,6 +1,6 @@
 <script>
 	import { linear } from 'svelte/easing';
-	import { fly, fade } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import typewriter from './transitions/typewritter';
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
@@ -61,6 +61,7 @@
 
 	let answering = false;
 	let plus;
+	let isRight = false;
 	let preEnunciate;
 	let streak = 0;
 
@@ -90,7 +91,7 @@
 			return;
 		}
 
-		const isRight = foundIndex === 0;
+		isRight = foundIndex === 0;
 
 		isRight ? streak++ : (streak = 0);
 
@@ -114,9 +115,7 @@
 		];
 		plus = answerHistoric[answerHistoric.length - 1].points;
 
-		preEnunciate = isRight
-			? `On point!${streak > 1 ? ` (x${streak})` : ''}`
-			: `Right answer was: ${targetCountry.name}.`;
+		preEnunciate = { show: true, country: targetCountry.name };
 		await sleep(AWAIT_ANIMATION);
 
 		const newTarget = leftCountries[0];
@@ -189,7 +188,15 @@
 			transition-duration: ${ARROW_ANIM_DUR / 1000}s;`}
 		/>
 		{#key preEnunciate}
-			<span class="you-are" in:fade>{preEnunciate || ''}</span>
+			<span class="answer-text" class:right={isRight} class:wrong={!isRight}>
+				{#if preEnunciate?.show}
+					{#if isRight}
+						On point!{streak > 1 ? `(x${streak})` : ''}
+					{:else}
+						Right answer was: <span class="right-answer">{preEnunciate.country}</span>.
+					{/if}
+				{/if}
+			</span>
 		{/key}
 		{#key enunciate}
 			<span class="you-are" in:typewriter={{ speed: 2 }}>{enunciate}</span>
@@ -269,6 +276,25 @@
 	.distance .you-are {
 		min-height: 1.5rem;
 		line-height: 1.5rem;
+	}
+
+	.distance .answer-text {
+		min-height: 1.5rem;
+		line-height: 1.5rem;
+	}
+
+	.distance .answer-text .right-answer {
+		font-weight: 600;
+	}
+
+	.distance .answer-text.right {
+		animation: heartBeat;
+		animation-duration: 1s;
+	}
+
+	.distance .answer-text.wrong {
+		animation: headShake;
+		animation-duration: 0.5s;
 	}
 
 	.guessing-img-wrapper {
