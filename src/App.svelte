@@ -8,9 +8,12 @@
 	import { countries as c, sanitizeCountryName } from './utils/countries';
 	import Autocomplete from './components/autocomplete.svelte';
 
-	const countries = c.filter(({ code }) =>
-		['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
-	);
+	const countries = c;
+	// .filter(({ code }) =>
+	//	['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
+	// );
+
+	let selectedCountries = [];
 
 	const AWAIT_ANIMATION = 1000;
 
@@ -55,20 +58,25 @@
 	let preEnunciate;
 	let streak = 0;
 
+	let message = { content: '' };
+
 	async function tryAnswer(value) {
 		if (!value || answering) {
-			console.log({ value });
-			// TODO: alert
+			return;
+		}
+
+		const sanitezed = sanitizeCountryName(value);
+		if (selectedCountries.some(({ name }) => sanitizeCountryName(name) === sanitezed)) {
+			message = { content: 'Country has already been chosen.' };
 			return;
 		}
 
 		const foundIndex = leftCountries.findIndex(
-			({ name }) => sanitizeCountryName(name) === sanitizeCountryName(value)
+			({ name }) => sanitizeCountryName(name) === sanitezed
 		);
 
 		if (foundIndex === -1) {
-			console.log({ foundIndex, value });
-			// TODO: alert
+			message = { content: 'Country not found.' };
 			return;
 		}
 
@@ -79,7 +87,7 @@
 		const guess = leftCountries[foundIndex];
 
 		// remove target from guess
-		leftCountries.splice(0, 1);
+		selectedCountries = [...selectedCountries, ...leftCountries.splice(0, 1)];
 
 		answering = true;
 
@@ -164,9 +172,7 @@
 			transition-duration: ${ARROW_ANIM_DUR / 1000}s;`}
 		/>
 		{#key preEnunciate}
-			{#if preEnunciate}
-				<span class="you-are" in:fade>{preEnunciate}</span>
-			{/if}
+			<span class="you-are" in:fade>{preEnunciate || ''}</span>
 		{/key}
 		{#key enunciate}
 			<span class="you-are" in:typewriter={{ speed: 2 }}>{enunciate}</span>
@@ -179,6 +185,7 @@
 				.splice(0, 4)}
 		disabled={answering}
 		onSelect={tryAnswer}
+		error={{ msg: message.content }}
 	/>
 	{#if false}
 		<ul class="answers" bind:this={answersList}>

@@ -1,14 +1,34 @@
 <script>
-	import { slide } from 'svelte/transition';
+	import { fly, slide } from 'svelte/transition';
 
+	export let error = { msg: '' };
 	export let disabled = false;
-	export let input = '';
 	export let getList = (entry = '') => {
 		return [];
 	};
 	export let onSelect = async (...args) => {};
 
+	let input = '';
+
 	$: list = getList(input);
+
+	let emsg = '';
+	let showError = false;
+
+	$: {
+		if (error?.msg) {
+			showError = true;
+		}
+	}
+
+	$: {
+		if (!input && error) {
+			emsg = error.msg;
+		} else {
+			showError = false;
+			emsg = '';
+		}
+	}
 </script>
 
 <div class="autocomplete">
@@ -34,19 +54,31 @@
 		type="text"
 		placeholder="type a country"
 		on:keypress={(e) => {
+			if (!input) return;
 			if (e.key === 'Enter') {
+				const value = input;
 				input = '';
 				if (list.length > 0) {
 					return onSelect(list[0].name);
 				}
-				return onSelect(input);
+				onSelect(value);
 			}
 		}}
 		bind:value={input}
 	/>
+	<p class="error-msg">
+		{showError ? emsg : ''}
+	</p>
 </div>
 
 <style>
+	.error-msg {
+		height: 1rem;
+		font-size: 1rem;
+		line-height: 1rem;
+		color: var(--danger-color);
+	}
+
 	.new-answer-input {
 		margin: 1rem 0;
 		padding: 0.25rem;
