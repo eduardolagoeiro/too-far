@@ -5,8 +5,10 @@
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
 	import { calcCrow, toDeg } from './utils/distance';
-	import { countries, sanitizeCountryName } from './utils/countries';
+	import { countries as c, sanitizeCountryName } from './utils/countries';
 	import Autocomplete from './components/autocomplete.svelte';
+
+	const countries = [...c];
 
 	// const countries = c.filter(({ code }) =>
 	// 	['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
@@ -19,13 +21,14 @@
 	const IMG_ANIM_DUR = 1000;
 	const IMG_ANIM_DELAY = 500;
 
-	const HISTORIC_ANIM_DUR = 400;
-
 	const ARROW_ANIM_DUR = 1000;
 	const ARROW_ANIM_DELAY = 500;
 
-	function getImgFromCode(code) {
-		return `/maps/${code.toLowerCase()}.svg`;
+	async function getTerritoryComponent(code) {
+		return {
+			Component: (await import(`./territories/${code.toLowerCase()}.svelte`)).default,
+			code
+		};
 	}
 
 	function num(raw) {
@@ -33,7 +36,11 @@
 		return raw > 0 ? `+${raw.toFixed(0)}` : raw.toFixed(0);
 	}
 
-	const leftCountries = [...countries].sort(() => (Math.random() > 0.5 ? 1 : -1));
+	const blockedCountries = [...countries].filter((country) => !!country.disabled);
+
+	const leftCountries = [...countries]
+		.filter((country) => !country.disabled)
+		.sort(() => (Math.random() > 0.5 ? 1 : -1));
 
 	let refCountry = leftCountries[leftCountries.length - 1];
 
@@ -70,11 +77,15 @@
 			return;
 		}
 
+		const blockedGuess = blockedCountries.find(
+			({ name }) => sanitizeCountryName(name) === sanitezed
+		);
+
 		const foundIndex = leftCountries.findIndex(
 			({ name }) => sanitizeCountryName(name) === sanitezed
 		);
 
-		if (foundIndex === -1) {
+		if (foundIndex === -1 && !blockedGuess) {
 			message = { content: 'Country not found.' };
 			return;
 		}
@@ -83,7 +94,7 @@
 
 		isRight ? streak++ : (streak = 0);
 
-		const guess = leftCountries[foundIndex];
+		const guess = leftCountries[foundIndex] || blockedGuess;
 
 		// remove target from guess
 		selectedCountries = [...selectedCountries, ...leftCountries.splice(0, 1)];
@@ -125,21 +136,14 @@
 	$: totalPoints = num(answerHistoric.reduce((acc, a) => acc + a.points, 0));
 
 	$: distance = calcCrow(refCountry, targetCountry);
-	// $: direction = bearing(refCountry, targetCountry);
-
-	$: targetImg = getImgFromCode(targetCountry.code);
-
-	$: {
-		console.log({ refCountry, targetCountry, distance, direction });
-	}
 
 	$: enunciate = `New guess is ${distance.toFixed(0)} Km from ${refCountry.name}.`;
 </script>
 
 <div class="container">
 	<div class="guessing-img-wrapper">
-		{#key targetImg}
-			<img
+		{#key targetCountry}
+			<div
 				in:fly={{
 					x: IMG_ANIM_X_OFFSET,
 					y: IMG_ANIM_Y_OFFSET,
@@ -155,10 +159,24 @@
 					easing: linear
 				}}
 				style="position: absolute;"
-				src={targetImg}
 				class="guessing-img"
 				alt="a territory"
-			/>
+			>
+				{#await getTerritoryComponent(targetCountry.code) then Territory}
+					<Territory.Component
+						flagexpand={{ duration: 200, easing: linear }}
+						drawin={{ duration: 1000 }}
+						strokeColor="black"
+						fill="transparent"
+						strokeWidth={6}
+						style={'height: 100%; width: 100%;'}
+						showFlag={selectedCountries.some(({ code }) => code === Territory.code)}
+						mainColor={targetCountry.color}
+					/>
+				{:catch err}
+					error: {err.message}
+				{/await}
+			</div>
 		{/key}
 	</div>
 	<div class="distance">

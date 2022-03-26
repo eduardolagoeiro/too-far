@@ -8,4 +8,4 @@
 - [ ] highscore
 - [ ] end game when 10 times
 - [ ] game rules on server
-- [ ] transition svg
+- [x] transition svg

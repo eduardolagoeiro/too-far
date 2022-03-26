@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { fly, slide } from 'svelte/transition';
 
+	interface Item {
+		name: string;
+	}
+
 	export let error: { msg: string };
 	export let disabled: boolean;
-	export let getList: (any) => any[];
+	export let getList: (Item) => Item[];
 	export let onSelect: (...args) => Promise<void>;
 
 	let input = '';
