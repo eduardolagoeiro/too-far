@@ -51,6 +51,7 @@
 	<input
 		class="new-answer-input"
 		class:disabled
+		class:error={showError}
 		type="text"
 		placeholder="type a country"
 		on:keypress={(e) => {
@@ -92,9 +93,21 @@
 		margin: 1rem 0;
 		padding: 0.25rem;
 		box-sizing: border-box;
-		border-color: lightgray;
+		border: 2px solid black;
+		border-radius: 0.25rem;
 		font-size: 1.2rem;
 		line-height: 150%;
+	}
+	.new-answer-input.error {
+		animation: shake 0.2s ease-in-out 0s 2;
+	}
+
+	.new-answer-input:focus,
+	.new-answer-input:focus-visible {
+		outline: var(--main-color) auto 1px;
+		outline-color: var(--main-color);
+		outline-style: auto;
+		outline-width: 2px;
 	}
 
 	.autocomplete {
@@ -122,5 +135,20 @@
 	}
 	.select .item:first-child {
 		border: none;
+	}
+
+	@keyframes shake {
+		0% {
+			margin-left: 0rem;
+		}
+		25% {
+			margin-left: 0.2rem;
+		}
+		75% {
+			margin-left: -0.2rem;
+		}
+		100% {
+			margin-left: 0rem;
+		}
 	}
 </style>

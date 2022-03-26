@@ -217,7 +217,7 @@
 		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
 			'Open Sans', 'Helvetica Neue', sans-serif;
 		--danger-color: #bb2124;
-		--sucess-color: #22bb33;
+		--success-color: #22bb33;
 		--warning-color: #f0ad4e;
 		--main-color: #5bc0de;
 		--bg-color: #aaaaaa;
@@ -308,7 +308,7 @@
 	}
 
 	.answer .points.success {
-		color: var(--sucess-color);
+		color: var(--success-color);
 	}
 
 	.answer .points.danger {
