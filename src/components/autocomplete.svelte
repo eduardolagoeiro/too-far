@@ -1,19 +1,17 @@
-<script>
+<script lang="ts">
 	import { fly, slide } from 'svelte/transition';
 
-	export let error = { msg: '' };
-	export let disabled = false;
-	export let getList = (entry = '') => {
-		return [];
-	};
+	export let error: { msg: string };
+	export let disabled: boolean;
+	export let getList: (any) => any[];
 	export let onSelect = async (...args) => {};
 
-	let input = '';
+	let input: string = '';
 
 	$: list = getList(input);
 
-	let emsg = '';
-	let showError = false;
+	let emsg: string;
+	let showError: boolean;
 
 	$: {
 		if (error?.msg) {
