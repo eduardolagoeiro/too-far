@@ -289,11 +289,13 @@
 
 	.distance .answer-text.right {
 		animation: heartBeat;
+		animation-delay: 0.3s;
 		animation-duration: 1s;
 	}
 
 	.distance .answer-text.wrong {
 		animation: headShake;
+		animation-delay: 0.3s;
 		animation-duration: 0.5s;
 	}
 
