@@ -1,6 +1,7 @@
 <script>
 	import { linear } from 'svelte/easing';
-	import { fly, fade, slide } from 'svelte/transition';
+	import { fly, fade } from 'svelte/transition';
+	import typewriter from './transitions/typewritter';
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
 	import { calcCrow, toDeg } from './utils/distance';
@@ -20,25 +21,6 @@
 
 	const ARROW_ANIM_DUR = 1000;
 	const ARROW_ANIM_DELAY = 500;
-
-	function typewriter(node, { speed = 1 }) {
-		const valid = node.childNodes.length === 1 && node.childNodes[0].nodeType === Node.TEXT_NODE;
-
-		if (!valid) {
-			throw new Error(`This transition only works on elements with a single text node child`);
-		}
-
-		const text = node.textContent;
-		const duration = text.length / (speed * 0.01);
-
-		return {
-			duration,
-			tick: (t) => {
-				const i = Math.trunc(text.length * t);
-				node.textContent = text.slice(0, i);
-			}
-		};
-	}
 
 	function getImgFromCode(code) {
 		return `/maps/${code.toLowerCase()}.svg`;
