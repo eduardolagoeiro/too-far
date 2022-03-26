@@ -4,9 +4,9 @@
 	export let error: { msg: string };
 	export let disabled: boolean;
 	export let getList: (any) => any[];
-	export let onSelect = async (...args) => {};
+	export let onSelect: (...args) => Promise<void>;
 
-	let input: string = '';
+	let input = '';
 
 	$: list = getList(input);
 
