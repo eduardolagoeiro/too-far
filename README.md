@@ -4,7 +4,7 @@
 
 - [x] add images
 - [x] search while typing
-- [ ] error alerts
+- [x] error alerts
 - [ ] highscore
 - [ ] end game when 10 times
 - [ ] game rules on server
