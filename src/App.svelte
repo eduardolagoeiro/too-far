@@ -5,12 +5,11 @@
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
 	import { calcCrow, toDeg } from './utils/distance';
-	import { countries as c, sanitizeCountryName } from './utils/countries';
+	import { countries, sanitizeCountryName } from './utils/countries';
 	import Autocomplete from './components/autocomplete.svelte';
 
-	const countries = c;
-	// .filter(({ code }) =>
-	//	['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
+	// const countries = c.filter(({ code }) =>
+	// 	['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
 	// );
 
 	let selectedCountries = [];
@@ -259,7 +258,6 @@
 		justify-content: center;
 		align-items: center;
 		width: 100%;
-		min-height: 40vh;
 		position: relative;
 		margin-bottom: 1vh;
 		flex-grow: 2;

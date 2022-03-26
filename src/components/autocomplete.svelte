@@ -66,14 +66,23 @@
 		}}
 		bind:value={input}
 	/>
-	<p class="error-msg">
-		{showError ? emsg : ''}
-	</p>
+	<div class="error-wrapper">
+		{#key emsg}
+			<p class="error-msg" in:fly={{ y: -20 }} out:fly={{ y: 20 }}>
+				{showError ? emsg : ''}
+			</p>
+		{/key}
+	</div>
 </div>
 
 <style>
-	.error-msg {
+	.error-wrapper {
 		height: 1rem;
+		position: relative;
+	}
+
+	.error-msg {
+		position: absolute;
 		font-size: 1rem;
 		line-height: 1rem;
 		color: var(--danger-color);
@@ -99,7 +108,7 @@
 		position: absolute;
 		border: solid 1px lightgray;
 		border-radius: 1rem 1rem 0 0;
-		bottom: 3.8rem;
+		bottom: 4.8rem;
 		background-color: white;
 		left: 0;
 		right: 0;
