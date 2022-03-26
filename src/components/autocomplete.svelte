@@ -34,7 +34,13 @@
 		type="text"
 		placeholder="type a country"
 		on:keypress={(e) => {
-			if (e.key === 'Enter') onSelect(input);
+			if (e.key === 'Enter') {
+				input = '';
+				if (list.length > 0) {
+					return onSelect(list[0].name);
+				}
+				return onSelect(input);
+			}
 		}}
 		bind:value={input}
 	/>
