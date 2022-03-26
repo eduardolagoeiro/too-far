@@ -3,13 +3,12 @@
 	import { fly, fade, slide } from 'svelte/transition';
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
-	import { calcCrow, bearing } from './utils/distance';
+	import { calcCrow, toDeg } from './utils/distance';
 	import { countries as c, sanitizeCountryName } from './utils/countries';
 
-	const countries = c;
-	// .filter(({ code }) =>
-	// 	['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
-	// );
+	const countries = c.filter(({ code }) =>
+		['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
+	);
 
 	const AWAIT_ANIMATION = 1000;
 
@@ -17,9 +16,6 @@
 	const IMG_ANIM_DELAY = 500;
 
 	const HISTORIC_ANIM_DUR = 400;
-
-	let IMG_ANIM_X_OFFSET = 0;
-	let IMG_ANIM_Y_OFFSET = 0;
 
 	const ARROW_ANIM_DUR = 1000;
 	const ARROW_ANIM_DELAY = 500;
@@ -58,6 +54,15 @@
 
 	// always get target from index 0
 	let targetCountry = leftCountries[0];
+
+	let IMG_ANIM_X_OFFSET = 10 * (refCountry.longitude - targetCountry.longitude);
+	let IMG_ANIM_Y_OFFSET = 10 * (refCountry.latitude - targetCountry.latitude);
+	$: direction = toDeg(
+		Math.atan2(
+			targetCountry.longitude - refCountry.longitude,
+			targetCountry.latitude - refCountry.latitude
+		)
+	);
 
 	let newAnswer = '';
 	let answerHistoric = [];
@@ -132,7 +137,7 @@
 	$: totalPoints = num(answerHistoric.reduce((acc, a) => acc + a.points, 0));
 
 	$: distance = calcCrow(refCountry, targetCountry);
-	$: direction = bearing(refCountry, targetCountry);
+	// $: direction = bearing(refCountry, targetCountry);
 
 	$: targetImg = getImgFromCode(targetCountry.code);
 
