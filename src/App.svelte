@@ -5,6 +5,7 @@
 	import sleep from './utils/sleep';
 	import { calcCrow, toDeg } from './utils/distance';
 	import { countries as c, sanitizeCountryName } from './utils/countries';
+	import Autocomplete from './components/autocomplete.svelte';
 
 	const countries = c.filter(({ code }) =>
 		['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
@@ -64,7 +65,6 @@
 		)
 	);
 
-	let newAnswer = '';
 	let answerHistoric = [];
 	let answersList;
 
@@ -74,7 +74,6 @@
 	let streak = 0;
 
 	async function tryAnswer(value) {
-		newAnswer = '';
 		if (!value || answering) {
 			console.log({ value });
 			// TODO: alert
@@ -191,29 +190,14 @@
 			<span class="you-are" in:typewriter={{ speed: 2 }}>{enunciate}</span>
 		{/key}
 	</div>
-	<div class="autocomplete">
-		{#if newAnswer}
-			<div class="select">
-				{#each countries
-					.filter(({ name }) => sanitizeCountryName(name).includes(sanitizeCountryName(newAnswer)))
-					.splice(0, 4) as country, i}
-					<div class="item" transition:slide on:click={() => tryAnswer(country.name)}>
-						{country.name}
-					</div>
-				{/each}
-			</div>
-		{/if}
-		<input
-			class="new-answer-input"
-			class:disabled={answering}
-			type="text"
-			placeholder="type a country"
-			on:keypress={(e) => {
-				if (e.key === 'Enter') tryAnswer(newAnswer);
-			}}
-			bind:value={newAnswer}
-		/>
-	</div>
+	<Autocomplete
+		getList={(input) =>
+			countries
+				.filter(({ name }) => sanitizeCountryName(name).includes(sanitizeCountryName(input)))
+				.splice(0, 4)}
+		disabled={answering}
+		onSelect={tryAnswer}
+	/>
 	{#if false}
 		<ul class="answers" bind:this={answersList}>
 			{#each answerHistoric as answer, i}
@@ -297,15 +281,6 @@
 		height: 100%;
 	}
 
-	.new-answer-input {
-		margin: 1rem 0;
-		padding: 0.25rem;
-		box-sizing: border-box;
-		border-color: lightgray;
-		font-size: 1.2rem;
-		line-height: 150%;
-	}
-
 	.bold {
 		font-weight: 600;
 	}
@@ -351,32 +326,5 @@
 
 	.answer .points.danger {
 		color: var(--danger-color);
-	}
-
-	.autocomplete {
-		position: relative;
-	}
-
-	.select {
-		display: flex;
-		flex-direction: column-reverse;
-		align-items: center;
-		position: absolute;
-		border: solid 1px lightgray;
-		border-radius: 1rem 1rem 0 0;
-		bottom: 3.8rem;
-		background-color: white;
-		left: 0;
-		right: 0;
-	}
-
-	.select .item {
-		padding: 1rem;
-		border-bottom: solid 1px lightgray;
-		box-sizing: border-box;
-		width: 100%;
-	}
-	.select .item:first-child {
-		border: none;
 	}
 </style>
