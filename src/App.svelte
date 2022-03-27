@@ -1,18 +1,28 @@
 <script>
 	import { linear } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
+	import { differenceInDays } from 'date-fns';
 	import typewriter from './transitions/typewritter';
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
 	import { calcCrow, toDeg } from './utils/distance';
 	import { countries as c, sanitizeCountryName } from './utils/countries';
 	import Autocomplete from './components/autocomplete.svelte';
+	import { gen } from './utils/random';
 
 	const countries = [...c];
 
 	// const countries = c.filter(({ code }) =>
 	// 	['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
 	// );
+
+	let turn = 0;
+
+	const diff = differenceInDays(new Date(), new Date(2022, 0, 1, 0, 0, 0, 0));
+
+	const countryPool = c.filter((country) => !country.disabled);
+
+	const indexes = gen(countryPool.length, diff);
 
 	let selectedCountries = [];
 
@@ -23,6 +33,7 @@
 
 	const ARROW_ANIM_DUR = 1000;
 	const ARROW_ANIM_DELAY = 500;
+	const END_TURN = 5;
 
 	async function getTerritoryComponent(code) {
 		return {
@@ -38,14 +49,8 @@
 
 	const blockedCountries = [...countries].filter((country) => !!country.disabled);
 
-	const leftCountries = [...countries]
-		.filter((country) => !country.disabled)
-		.sort(() => (Math.random() > 0.5 ? 1 : -1));
-
-	let refCountry = leftCountries[leftCountries.length - 1];
-
-	// always get target from index 0
-	let targetCountry = leftCountries[0];
+	let refCountry = countryPool[indexes[indexes.length - 1]];
+	let targetCountry = countryPool[indexes[turn]];
 
 	let IMG_ANIM_X_OFFSET = 10 * (refCountry.longitude - targetCountry.longitude);
 	let IMG_ANIM_Y_OFFSET = 10 * (refCountry.latitude - targetCountry.latitude);
@@ -68,6 +73,10 @@
 	let message = { content: '' };
 
 	async function tryAnswer(value) {
+		if (gameEnded) {
+			return;
+		}
+
 		if (!value || answering) {
 			return;
 		}
@@ -82,23 +91,20 @@
 			({ name }) => sanitizeCountryName(name) === sanitezed
 		);
 
-		const foundIndex = leftCountries.findIndex(
-			({ name }) => sanitizeCountryName(name) === sanitezed
-		);
+		const foundIndex = countryPool.findIndex(({ name }) => sanitizeCountryName(name) === sanitezed);
 
 		if (foundIndex === -1 && !blockedGuess) {
 			message = { content: 'Country not found.' };
 			return;
 		}
 
-		isRight = foundIndex === 0;
+		isRight = foundIndex === indexes[turn];
 
 		isRight ? streak++ : (streak = 0);
 
-		const guess = leftCountries[foundIndex] || blockedGuess;
+		const guess = countryPool[foundIndex] || blockedGuess;
 
-		// remove target from guess
-		selectedCountries = [...selectedCountries, ...leftCountries.splice(0, 1)];
+		selectedCountries = [...selectedCountries, countryPool[indexes[turn]]];
 
 		answering = true;
 
@@ -118,7 +124,12 @@
 		preEnunciate = { show: true, country: targetCountry.name };
 		await sleep(AWAIT_ANIMATION);
 
-		const newTarget = leftCountries[0];
+		turn = turn + 1;
+		if (turn === END_TURN) {
+			return;
+		}
+		const newTarget = countryPool[indexes[turn]];
+
 		IMG_ANIM_X_OFFSET = 10 * (newTarget.longitude - targetCountry.longitude);
 		IMG_ANIM_Y_OFFSET = -10 * (newTarget.latitude - targetCountry.latitude);
 
@@ -137,6 +148,8 @@
 	$: distance = calcCrow(refCountry, targetCountry);
 
 	$: enunciate = `New guess is ${distance.toFixed(0)} Km from ${refCountry.name}.`;
+
+	$: gameEnded = turn === END_TURN ? true : false;
 </script>
 
 <div class="container">
