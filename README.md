@@ -12,3 +12,4 @@
 - [x] game with daily random seed
 - [x] transition svg
 - [ ] highscore
+- [ ] i18n
