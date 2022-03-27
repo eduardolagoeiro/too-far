@@ -1,7 +1,8 @@
 <script>
 	import { linear } from 'svelte/easing';
-	import { fly } from 'svelte/transition';
+	import { fly, slide } from 'svelte/transition';
 	import { differenceInDays } from 'date-fns';
+	import flyover from './transitions/flyover';
 	import typewriter from './transitions/typewritter';
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
@@ -33,7 +34,7 @@
 
 	const ARROW_ANIM_DUR = 1000;
 	const ARROW_ANIM_DELAY = 500;
-	const END_TURN = 5;
+	const END_TURN = 2;
 
 	async function getTerritoryComponent(code) {
 		return {
@@ -42,9 +43,9 @@
 		};
 	}
 
-	function num(raw) {
+	function num(raw, pre = '+') {
 		if (raw === 0) return '0';
-		return raw > 0 ? `+${raw.toFixed(0)}` : raw.toFixed(0);
+		return raw > 0 ? `${pre}${raw.toFixed(0)}` : raw.toFixed(0);
 	}
 
 	const blockedCountries = [...countries].filter((country) => !!country.disabled);
@@ -116,7 +117,7 @@
 				ref: refCountry,
 				guess: guess,
 				target: targetCountry,
-				points: Math.floor(10000 - dist) / 10
+				points: Math.floor(10000 - dist) / 100
 			}
 		];
 		plus = answerHistoric[answerHistoric.length - 1].points;
@@ -125,17 +126,16 @@
 		await sleep(AWAIT_ANIMATION);
 
 		turn = turn + 1;
-		if (turn === END_TURN) {
-			return;
+		if (turn !== END_TURN) {
+			const newTarget = countryPool[indexes[turn]];
+
+			IMG_ANIM_X_OFFSET = 10 * (newTarget.longitude - targetCountry.longitude);
+			IMG_ANIM_Y_OFFSET = -10 * (newTarget.latitude - targetCountry.latitude);
+
+			refCountry = targetCountry;
+
+			targetCountry = newTarget;
 		}
-		const newTarget = countryPool[indexes[turn]];
-
-		IMG_ANIM_X_OFFSET = 10 * (newTarget.longitude - targetCountry.longitude);
-		IMG_ANIM_Y_OFFSET = -10 * (newTarget.latitude - targetCountry.latitude);
-
-		refCountry = targetCountry;
-
-		targetCountry = newTarget;
 
 		if (answersList) answersList.scrollTop = -10000;
 
@@ -143,7 +143,10 @@
 		answering = false;
 	}
 
-	$: totalPoints = num(answerHistoric.reduce((acc, a) => acc + a.points, 0));
+	$: totalPoints = num(
+		answerHistoric.reduce((acc, a) => acc + a.points, 0),
+		''
+	);
 
 	$: distance = calcCrow(refCountry, targetCountry);
 
@@ -153,6 +156,37 @@
 </script>
 
 <div class="container">
+	<div class="total-points" class:danger={totalPoints < 0}>
+		{#if totalPoints && false}
+			<span transition:fly={{ y: 20 }} style="position: absolute;">
+				{totalPoints}
+			</span>
+		{/if}
+	</div>
+	{#if gameEnded}
+		<ul class="answers" bind:this={answersList} in:slide>
+			{#each answerHistoric as answer, i}
+				<li class="answer">
+					<div class="name">
+						{answer.guess.name}
+					</div>
+					<div class="name">
+						({answer.target.name})
+					</div>
+					<div class="points" class:success={answer.points > 0} class:danger={answer.points < 0}>
+						{num(answer.points)}
+					</div>
+				</li>
+			{/each}
+			{#if answerHistoric.length > 0}
+				<li class="answer bold">
+					<div>Guess:</div>
+					<div>Answer:</div>
+					<div>Points:</div>
+				</li>
+			{/if}
+		</ul>
+	{/if}
 	<div class="guessing-img-wrapper">
 		{#key targetCountry}
 			<div
@@ -192,14 +226,31 @@
 		{/key}
 	</div>
 	<div class="distance">
-		<img
-			src={arrow}
-			class="arrow"
-			alt="an arrow"
-			style={`transform: rotate(${direction.toFixed(2)}deg);
-			transition-delay: ${ARROW_ANIM_DELAY / 1000}s;
-			transition-duration: ${ARROW_ANIM_DUR / 1000}s;`}
-		/>
+		<div style="position: relative;">
+			<img
+				src={arrow}
+				class="arrow"
+				alt="an arrow"
+				style={`transform: rotate(${direction.toFixed(2)}deg);
+				transition-delay: ${ARROW_ANIM_DELAY / 1000}s;
+				transition-duration: ${ARROW_ANIM_DUR / 1000}s;`}
+			/>
+			{#if !isNaN(plus)}
+				<span
+					in:flyover={{
+						y: 20 * (plus > 0 ? 1 : -1),
+						yOffset: 20 * (plus > 0 ? 1 : -1),
+						duration: 1000,
+						fadeT: 0.8
+					}}
+					on:introend={() => (plus = undefined)}
+					class="plus-points"
+					class:danger={plus < 0}
+				>
+					{num(plus)}
+				</span>
+			{/if}
+		</div>
 		{#key preEnunciate}
 			<span class="answer-text" class:right={isRight} class:wrong={!isRight}>
 				{#if preEnunciate?.show}
@@ -211,42 +262,22 @@
 				{/if}
 			</span>
 		{/key}
-		{#key enunciate}
-			<span class="you-are" in:typewriter={{ speed: 2 }}>{enunciate}</span>
-		{/key}
+		{#if enunciate && !gameEnded}
+			<span class="you-are" in:typewriter={{ speed: 2 }} out:slide>{enunciate}</span>
+		{/if}
 	</div>
-	<Autocomplete
-		getList={(input) =>
-			countries
-				.filter(({ name }) => sanitizeCountryName(name).includes(sanitizeCountryName(input)))
-				.splice(0, 4)}
-		disabled={answering}
-		onSelect={tryAnswer}
-		error={{ msg: message.content }}
-	/>
-	{#if false}
-		<ul class="answers" bind:this={answersList}>
-			{#each answerHistoric as answer, i}
-				<li class="answer">
-					<div class="name">
-						{answer.guess.name}
-					</div>
-					<div class="name">
-						({answer.target.name})
-					</div>
-					<div class="points" class:success={answer.points > 0} class:danger={answer.points < 0}>
-						{num(answer.points)}
-					</div>
-				</li>
-			{/each}
-			{#if answerHistoric.length > 0}
-				<li class="answer bold">
-					<div>Guess:</div>
-					<div>Answer:</div>
-					<div>Points:</div>
-				</li>
-			{/if}
-		</ul>
+	{#if !gameEnded}
+		<div out:slide>
+			<Autocomplete
+				getList={(input) =>
+					countries
+						.filter(({ name }) => sanitizeCountryName(name).includes(sanitizeCountryName(input)))
+						.splice(0, 4)}
+				disabled={answering}
+				onSelect={tryAnswer}
+				error={{ msg: message.content }}
+			/>
+		</div>
 	{/if}
 </div>
 
@@ -261,9 +292,29 @@
 		--bg-color: #aaaaaa;
 	}
 
+	.total-points {
+		font-size: 2rem;
+		position: relative;
+		color: var(--main-color);
+	}
+
+	.total-points.danger {
+		color: var(--danger-color);
+	}
+
+	.plus-points {
+		font-size: 1.5rem;
+		position: absolute;
+		color: var(--success-color);
+	}
+
+	.plus-points.danger {
+		color: var(--danger-color);
+	}
+
 	.container {
-		margin: 3vh auto 0;
-		max-width: min(90vmin, 600px);
+		margin: 1vh auto 0;
+		max-width: min(95vmin, 600px);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -313,6 +364,7 @@
 	}
 
 	.guessing-img-wrapper {
+		position: relative;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -340,7 +392,6 @@
 		gap: 1.5vh;
 		font-size: 1rem;
 		line-height: 1rem;
-		overflow-y: scroll;
 		max-height: 20vh;
 		padding: 2vh;
 		margin: 2vh 0;

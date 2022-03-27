@@ -5,8 +5,9 @@
 - [x] add images
 - [x] search while typing
 - [x] error alerts
-- [ ] points
-- [ ] historic
+- [x] plus points
+- [ ] total points
+- [x] historic
 - [ ] persistance
 - [x] end game when 5 times
 - [x] game with daily random seed
