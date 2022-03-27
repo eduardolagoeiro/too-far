@@ -11,6 +11,8 @@
 	import Autocomplete from './components/autocomplete.svelte';
 	import { gen } from './utils/random';
 
+	const END_TURN = 10;
+
 	const countries = [...c];
 
 	// const countries = c.filter(({ code }) =>
@@ -23,7 +25,7 @@
 
 	const countryPool = c.filter((country) => !country.disabled);
 
-	const indexes = gen(countryPool.length, diff);
+	const indexes = gen(countryPool.length, diff, END_TURN + 1);
 
 	let selectedCountries = [];
 
@@ -34,7 +36,6 @@
 
 	const ARROW_ANIM_DUR = 1000;
 	const ARROW_ANIM_DELAY = 500;
-	const END_TURN = 2;
 
 	async function getTerritoryComponent(code) {
 		return {
@@ -227,14 +228,17 @@
 	</div>
 	<div class="distance">
 		<div style="position: relative;">
-			<img
-				src={arrow}
-				class="arrow"
-				alt="an arrow"
-				style={`transform: rotate(${direction.toFixed(2)}deg);
-				transition-delay: ${ARROW_ANIM_DELAY / 1000}s;
-				transition-duration: ${ARROW_ANIM_DUR / 1000}s;`}
-			/>
+			{#if !gameEnded}
+				<img
+					in:slide
+					src={arrow}
+					class="arrow"
+					alt="an arrow"
+					style={`transform: rotate(${direction.toFixed(2)}deg);
+					transition-delay: ${ARROW_ANIM_DELAY / 1000}s;
+					transition-duration: ${ARROW_ANIM_DUR / 1000}s;`}
+				/>
+			{/if}
 			{#if !isNaN(plus)}
 				<span
 					in:flyover={{
@@ -392,7 +396,6 @@
 		gap: 1.5vh;
 		font-size: 1rem;
 		line-height: 1rem;
-		max-height: 20vh;
 		padding: 2vh;
 		margin: 2vh 0;
 	}

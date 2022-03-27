@@ -23,9 +23,9 @@ function mulberry32(a) {
 	};
 }
 
-export function gen(size, n) {
+export function gen(size, n, s) {
 	var rand = mulberry32(n);
 	return new Array(
 		...new Set([n % size, ...new Array(10).fill(0).map(() => Math.floor(rand() * size) % size)])
-	).splice(0, 6);
+	).splice(0, s);
 }
