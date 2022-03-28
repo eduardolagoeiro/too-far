@@ -214,7 +214,7 @@
 						flagexpand={{ duration: 200, easing: linear }}
 						drawin={{ duration: 1000 }}
 						strokeColor="black"
-						fill="transparent"
+						fill="#eee"
 						strokeWidth={6}
 						style={'height: 100%; width: 100%;'}
 						showFlag={selectedCountries.some(({ code }) => code === Territory.code)}
@@ -317,12 +317,19 @@
 	}
 
 	.container {
-		margin: 1vh auto 0;
+		margin: 1vh auto;
 		max-width: min(95vmin, 600px);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		min-height: 80vh;
+		min-height: calc(100vh - 65px);
+		box-sizing: border-box;
+	}
+
+	@supports (-webkit-touch-callout: none) {
+		.container {
+			min-height: calc(100vh - 130px);
+		}
 	}
 
 	.distance {

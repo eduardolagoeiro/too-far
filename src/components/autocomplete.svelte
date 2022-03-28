@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { fly, slide } from 'svelte/transition';
+	import Keyboard from './keyboard.svelte';
+	import { fly, slide, fade } from 'svelte/transition';
 
 	interface Item {
 		name: string;
@@ -31,57 +32,181 @@
 			emsg = '';
 		}
 	}
+
+	let focus = false;
+	let alreadyTyped = false;
+
+	const onType = (key) => {
+		if (!alreadyTyped) alreadyTyped = true;
+
+		key = key.toLowerCase();
+
+		if (key === 'clear') {
+			input = '';
+			return;
+		}
+
+		if (key === 'space') {
+			input = input + ' ';
+			return;
+		}
+		if (key === 'backspace') {
+			if (input.length > 0) {
+				input = input.substring(0, input.length - 1);
+			}
+			return;
+		}
+		if ('qwertyuiopasdfghjklzxcvbnm'.split('').includes(key)) {
+			input = input + key;
+			return;
+		}
+
+		if (key === 'enter') {
+			if (input === '') return;
+			const value = input;
+			input = '';
+			if (list.length > 0) {
+				onSelect(list[0].name);
+				return;
+			}
+			onSelect(value);
+			return;
+		}
+	};
+
+	let kb;
+
+	const onKeydown = (event) => {
+		const v = event.key.trim() || event.code;
+		kb?.tip(v);
+		return onType(v);
+	};
 </script>
 
+<svelte:window on:keydown={onKeydown} />
+
 <div class="autocomplete">
-	{#if input && list.length > 0}
-		<div class="select">
-			{#each list as item, i}
-				<div
-					class="item"
-					transition:slide
-					on:click={() => {
-						input = '';
-						onSelect(item.name);
-					}}
-				>
-					{item.name}
-				</div>
-			{/each}
+	<div
+		class="typing-box-wrapper"
+		class:flick={focus && !input}
+		class:focus={focus || input}
+		on:click={() => (focus = true)}
+	>
+		{#if input && list.length > 0}
+			<div class="select">
+				{#each list as item, i}
+					<div
+						class="item"
+						transition:slide
+						on:click={() => {
+							input = '';
+							onSelect(item.name);
+						}}
+					>
+						{item.name}
+					</div>
+				{/each}
+			</div>
+		{/if}
+		<div class="typing-box">
+			{!input && focus ? '|' : ''}{input}
 		</div>
-	{/if}
-	<input
-		class="new-answer-input"
-		class:disabled
-		class:error={showError}
-		type="text"
-		placeholder="type a country"
-		on:keypress={(e) => {
-			if (!input) return;
-			if (e.key === 'Enter') {
-				const value = input;
-				input = '';
-				if (list.length > 0) {
-					return onSelect(list[0].name);
+	</div>
+	{#if false}
+		<input
+			class="new-answer-input"
+			class:disabled
+			class:error={showError}
+			type="text"
+			placeholder="type a country"
+			on:keypress={(e) => {
+				if (!input) return;
+				if (e.key === 'Enter') {
+					const value = input;
+					input = '';
+					if (list.length > 0) {
+						return onSelect(list[0].name);
+					}
+					onSelect(value);
 				}
-				onSelect(value);
-			}
-		}}
-		bind:value={input}
-	/>
+			}}
+			bind:value={input}
+		/>
+	{/if}
 	<div class="error-wrapper">
 		{#key emsg}
-			<p class="error-msg" in:fly={{ y: -20 }} out:fly={{ y: 20 }}>
+			<p class="error-msg" in:fly={{ y: -40 }} out:fade>
 				{showError ? emsg : ''}
 			</p>
 		{/key}
 	</div>
+	<div class="keyboard-wrapper" class:focus={!alreadyTyped && focus}>
+		<Keyboard bind:this={kb} type={({ key }) => onType(key)} />
+	</div>
 </div>
 
 <style>
-	.error-wrapper {
-		height: 1rem;
+	.typing-box {
+		overflow: hidden;
+		display: flex;
+		justify-content: center;
+	}
+
+	.typing-box-wrapper {
 		position: relative;
+		width: 80%;
+		margin: 0.5rem auto 0;
+		padding: 0.25rem;
+		box-sizing: border-box;
+		border: 2px solid black;
+		border-radius: 0.25rem;
+		font-size: 1.2rem;
+		line-height: 150%;
+		height: 2.5rem;
+		display: flex;
+		justify-content: center;
+	}
+
+	.typing-box-wrapper.flick {
+		animation: flick;
+		animation-duration: 0.8s;
+		animation-iteration-count: infinite;
+	}
+
+	@keyframes flick {
+		0% {
+			color: inherit;
+		}
+		49% {
+			color: inherit;
+		}
+		50% {
+			color: transparent;
+		}
+		100% {
+			color: transparent;
+		}
+	}
+
+	.typing-box-wrapper.focus {
+		border-color: var(--main-color);
+	}
+
+	.typing-box-wrapper:hover {
+		cursor: pointer;
+	}
+
+	.keyboard-wrapper.focus {
+		animation: shakeX;
+		animation-duration: 1s;
+	}
+
+	.error-wrapper {
+		height: 2rem;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.error-msg {
@@ -114,6 +239,10 @@
 
 	.autocomplete {
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		margin: 0 auto;
+		width: min(90vw, 400px);
 	}
 
 	.select {
@@ -121,12 +250,11 @@
 		flex-direction: column-reverse;
 		align-items: center;
 		position: absolute;
-		border: solid 1px lightgray;
+		border: solid 2px lightgray;
 		border-radius: 1rem 1rem 0 0;
-		bottom: 4.8rem;
+		bottom: 2.5rem;
 		background-color: white;
-		left: 0;
-		right: 0;
+		width: 100%;
 	}
 
 	.select .item {
