@@ -14,3 +14,4 @@
 - [x] transition svg
 - [ ] highscore
 - [ ] i18n
+- [ ] add splash screen
