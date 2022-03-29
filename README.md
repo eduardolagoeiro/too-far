@@ -15,3 +15,5 @@
 - [ ] highscore
 - [ ] i18n
 - [ ] add splash screen
+- [ ] fix austria svg
+- [ ] add modal with results (remove animation)
