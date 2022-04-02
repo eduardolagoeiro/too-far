@@ -18,7 +18,14 @@
 	const preserveAspectRatio = 'xMidYMid slice';
 </script>
 
-<svg {style} width="1980" height="1013" xmlns="http://www.w3.org/2000/svg">
+<svg
+	{style}
+	width="1980"
+	height="1013"
+	version="1.0"
+	xmlns="http://www.w3.org/2000/svg"
+	viewBox="0 0 1980 1013"
+>
 	<defs
 		><pattern id="at" patternUnits="userSpaceOnUse" width="100%" height="100%">
 			{#key showFlag}

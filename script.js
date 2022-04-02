@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 (async () => {
-	const baseDir = 'tmp/maps';
+	const baseDir = 'dataset/maps';
 	const res = fs.readdirSync(baseDir);
 	const files = res.filter((f) => f.includes('.svg'));
 	// .filter(
@@ -19,7 +19,7 @@ import fs from 'fs';
     <defs><pattern id="${code}" patternUnits="userSpaceOnUse" width="100%" height="100%">
       {#key showFlag}
       ${fs
-				.readFileSync(`tmp/flags/${file}`, { encoding: 'utf-8' })
+				.readFileSync(`dataset/flags/${file}`, { encoding: 'utf-8' })
 				.replace('<svg ', '<svg {preserveAspectRatio} in:expand={flagexpand} ')}
       {/key}
     </pattern></defs>`;
