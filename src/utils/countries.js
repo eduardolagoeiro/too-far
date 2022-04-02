@@ -24,7 +24,7 @@ export const countries = [
 		name: 'Netherlands Antilles',
 		disabled: true
 	},
-	{ code: 'AO', latitude: -11.202692, longitude: 17.873887, name: 'Angola' },
+	{ code: 'AO', latitude: -11.202692, longitude: 17.873887, name: 'Angola', disabled: true },
 	{
 		code: 'AQ',
 		latitude: -75.250973,
@@ -42,7 +42,8 @@ export const countries = [
 		code: 'AS',
 		latitude: -14.270972,
 		longitude: -170.132217,
-		name: 'American Samoa'
+		name: 'American Samoa',
+		disabled: true
 	},
 	{ code: 'AT', latitude: 47.516231, longitude: 14.550072, name: 'Austria' },
 	{
@@ -82,7 +83,8 @@ export const countries = [
 		code: 'BV',
 		latitude: -54.423199,
 		longitude: 3.413194,
-		name: 'Bouvet Island'
+		name: 'Bouvet Island',
+		disabled: true
 	},
 	{ code: 'BW', latitude: -22.328474, longitude: 24.684866, name: 'Botswana' },
 	{ code: 'BY', latitude: 53.709807, longitude: 27.953389, name: 'Belarus' },
@@ -92,7 +94,8 @@ export const countries = [
 		code: 'CC',
 		latitude: -12.164165,
 		longitude: 96.870956,
-		name: 'Cocos Islands'
+		name: 'Cocos Islands',
+		disabled: true
 	},
 	{
 		code: 'CD',
@@ -123,7 +126,8 @@ export const countries = [
 		code: 'CK',
 		latitude: -21.236736,
 		longitude: -159.777671,
-		name: 'Cook Islands'
+		name: 'Cook Islands',
+		disabled: true
 	},
 	{ code: 'CL', latitude: -35.675147, longitude: -71.542969, name: 'Chile' },
 	{ code: 'CM', latitude: 7.369722, longitude: 12.354722, name: 'Cameroon' },
@@ -141,7 +145,8 @@ export const countries = [
 		code: 'CX',
 		latitude: -10.447525,
 		longitude: 105.690449,
-		name: 'Christmas Island'
+		name: 'Christmas Island',
+		disabled: true
 	},
 	{ code: 'CY', latitude: 35.126413, longitude: 33.429859, name: 'Cyprus' },
 	{
@@ -179,7 +184,7 @@ export const countries = [
 		code: 'FK',
 		latitude: -51.796253,
 		longitude: -59.523613,
-		name: 'Falkland Islands (Malvinas)'
+		name: 'Malvinas'
 	},
 	{ code: 'FM', latitude: 7.425554, longitude: 150.550812, name: 'Micronesia', disabled: true },
 	{
@@ -204,7 +209,7 @@ export const countries = [
 		longitude: -53.125782,
 		name: 'French Guiana'
 	},
-	{ code: 'GG', latitude: 49.465691, longitude: -2.585278, name: 'Guernsey' },
+	{ code: 'GG', latitude: 49.465691, longitude: -2.585278, name: 'Guernsey', disabled: true },
 	{ code: 'GH', latitude: 7.946527, longitude: -1.023194, name: 'Ghana' },
 	{ code: 'GI', latitude: 36.137741, longitude: -5.345374, name: 'Gibraltar' },
 	{ code: 'GL', latitude: 71.706936, longitude: -42.604303, name: 'Greenland' },
@@ -227,10 +232,11 @@ export const countries = [
 		code: 'GS',
 		latitude: -54.429579,
 		longitude: -36.587909,
-		name: 'South Georgia and the South Sandwich Islands'
+		name: 'South Georgia and the South Sandwich Islands',
+		disabled: true
 	},
 	{ code: 'GT', latitude: 15.783471, longitude: -90.230759, name: 'Guatemala' },
-	{ code: 'GU', latitude: 13.444304, longitude: 144.793731, name: 'Guam' },
+	{ code: 'GU', latitude: 13.444304, longitude: 144.793731, name: 'Guam', disabled: true },
 	{
 		code: 'GW',
 		latitude: 11.803749,
@@ -258,14 +264,16 @@ export const countries = [
 		code: 'IM',
 		latitude: 54.236107,
 		longitude: -4.548056,
-		name: 'Isle of Man'
+		name: 'Isle of Man',
+		disabled: true
 	},
 	{ code: 'IN', latitude: 20.593684, longitude: 78.96288, name: 'India' },
 	{
 		code: 'IO',
 		latitude: -6.343194,
 		longitude: 71.876519,
-		name: 'British Indian Ocean Territory (Diego Garcia)'
+		name: 'British Indian Ocean Territory (Diego Garcia)',
+		disabled: true
 	},
 	{ code: 'IQ', latitude: 33.223191, longitude: 43.679291, name: 'Iraq' },
 	{ code: 'IR', latitude: 32.427908, longitude: 53.688046, name: 'Iran' },
@@ -398,15 +406,16 @@ export const countries = [
 		code: 'NF',
 		latitude: -29.040835,
 		longitude: 167.954712,
-		name: 'Norfolk Island'
+		name: 'Norfolk Island',
+		disabled: true
 	},
 	{ code: 'NG', latitude: 9.081999, longitude: 8.675277, name: 'Nigeria' },
 	{ code: 'NI', latitude: 12.865416, longitude: -85.207229, name: 'Nicaragua' },
 	{ code: 'NL', latitude: 52.132633, longitude: 5.291266, name: 'Netherlands' },
 	{ code: 'NO', latitude: 60.472024, longitude: 8.468946, name: 'Norway' },
 	{ code: 'NP', latitude: 28.394857, longitude: 84.124008, name: 'Nepal' },
-	{ code: 'NR', latitude: -0.522778, longitude: 166.931503, name: 'Nauru' },
-	{ code: 'NU', latitude: -19.054445, longitude: -169.867233, name: 'Niue' },
+	{ code: 'NR', latitude: -0.522778, longitude: 166.931503, name: 'Nauru', disabled: true },
+	{ code: 'NU', latitude: -19.054445, longitude: -169.867233, name: 'Niue', disabled: true },
 	{
 		code: 'NZ',
 		latitude: -40.900557,
@@ -440,13 +449,15 @@ export const countries = [
 		code: 'PM',
 		latitude: 46.941936,
 		longitude: -56.27111,
-		name: 'Saint Pierre and Miquelon'
+		name: 'Saint Pierre and Miquelon',
+		disabled: true
 	},
 	{
 		code: 'PN',
 		latitude: -24.703615,
 		longitude: -127.439308,
-		name: 'Pitcairn Islands'
+		name: 'Pitcairn Islands',
+		disabled: true
 	},
 	{
 		code: 'PR',
@@ -529,14 +540,16 @@ export const countries = [
 		code: 'TC',
 		latitude: 21.694025,
 		longitude: -71.797928,
-		name: 'Turks and Caicos Islands'
+		name: 'Turks and Caicos Islands',
+		disabled: true
 	},
 	{ code: 'TD', latitude: 15.454166, longitude: 18.732207, name: 'Chad' },
 	{
 		code: 'TF',
 		latitude: -49.280366,
 		longitude: 69.348557,
-		name: 'French Southern Territories'
+		name: 'French Southern Territories',
+		disabled: true
 	},
 	{ code: 'TG', latitude: 8.619543, longitude: 0.824782, name: 'Togo' },
 	{ code: 'TH', latitude: 15.870032, longitude: 100.992541, name: 'Thailand' },
@@ -593,13 +606,15 @@ export const countries = [
 		code: 'VG',
 		latitude: 18.420695,
 		longitude: -64.639968,
-		name: 'British Virgin Islands'
+		name: 'British Virgin Islands',
+		disabled: true
 	},
 	{
 		code: 'VI',
 		latitude: 18.335765,
 		longitude: -64.896335,
-		name: 'U.S. Virgin Islands'
+		name: 'U.S. Virgin Islands',
+		disabled: true
 	},
 	{ code: 'VN', latitude: 14.058324, longitude: 108.277199, name: 'Vietnam' },
 	{ code: 'VU', latitude: -15.376706, longitude: 166.959158, name: 'Vanuatu' },
@@ -607,7 +622,8 @@ export const countries = [
 		code: 'WF',
 		latitude: -13.768752,
 		longitude: -177.156097,
-		name: 'Wallis and Futuna'
+		name: 'Wallis and Futuna',
+		disabled: true
 	},
 	{ code: 'WS', latitude: -13.759029, longitude: -172.104629, name: 'Samoa' },
 	{ code: 'XK', latitude: 42.602636, longitude: 20.902977, name: 'Kosovo', disabled: true },
