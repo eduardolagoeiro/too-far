@@ -175,6 +175,13 @@
 	</div>
 	{#if gameEnded}
 		<ul class="answers" bind:this={answersList} in:slide>
+			{#if answerHistoric.length > 0}
+				<li class="answer bold">
+					<div>{t('answers', 'guess')}</div>
+					<div>{t('answers', 'answer')}</div>
+					<div>{t('answers', 'points')}</div>
+				</li>
+			{/if}
 			{#each answerHistoric as answer, i}
 				<li class="answer">
 					<div class="name">
@@ -188,13 +195,6 @@
 					</div>
 				</li>
 			{/each}
-			{#if answerHistoric.length > 0}
-				<li class="answer bold">
-					<div>{t('answers', 'guess')}</div>
-					<div>{t('answers', 'answer')}</div>
-					<div>{t('answers', 'points')}</div>
-				</li>
-			{/if}
 		</ul>
 	{/if}
 	<div class="guessing-img-wrapper">
@@ -225,7 +225,7 @@
 						strokeColor="black"
 						fill="#eee"
 						strokeWidth={6}
-						style={'height: 100%; width: 100%;'}
+						style={'position: absolute; height: 100%; width: 100%;'}
 						showFlag={selectedCountries.some(({ code }) => code === Territory.code)}
 						mainColor={targetCountry.color}
 					/>
@@ -342,7 +342,7 @@
 
 	@supports (-webkit-touch-callout: none) {
 		.container {
-			min-height: calc(100vh - 130px);
+			min-height: calc(100vh - 100px);
 		}
 	}
 
@@ -352,7 +352,6 @@
 		align-items: center;
 		flex-direction: column;
 		margin-top: 2vh;
-		gap: 2vh;
 		text-align: center;
 	}
 
@@ -363,7 +362,8 @@
 	}
 
 	.distance .you-are-wrapper {
-		min-height: 1.5rem;
+		min-height: 3rem;
+		padding: 0 2rem;
 	}
 
 	.distance .you-are {
@@ -414,14 +414,9 @@
 
 	.answers {
 		width: 90%;
-		display: flex;
-		flex-direction: column-reverse;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1.5vh;
-		font-size: 1rem;
-		line-height: 1rem;
-		padding: 2vh;
+		display: grid;
+		grid-gap: 1.5vh;
+		gap: 1vh;
 		margin: 2vh 0;
 	}
 

@@ -109,8 +109,7 @@
 	}
 
 	.backspace .letter {
-		display: flex;
-		height: 50%;
+		height: 100%;
 		width: 50%;
 	}
 
