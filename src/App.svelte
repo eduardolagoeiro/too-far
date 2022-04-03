@@ -7,7 +7,7 @@
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
 	import { calcCrow, toDeg } from './utils/distance';
-	import { countries as c, sanitizeCountryName, getCountryName } from './utils/countries';
+	import { countries as c, sanitizeCountryName } from './utils/countries';
 	import Autocomplete from './components/autocomplete.svelte';
 	import { gen } from './utils/random';
 	import { getLang } from './utils/lang';
