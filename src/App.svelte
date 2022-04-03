@@ -7,23 +7,29 @@
 	import arrow from './assets/arrow.svg';
 	import sleep from './utils/sleep';
 	import { calcCrow, toDeg } from './utils/distance';
-	import { countries as c, sanitizeCountryName } from './utils/countries';
+	import { countries as c, sanitizeCountryName, getCountryName } from './utils/countries';
 	import Autocomplete from './components/autocomplete.svelte';
 	import { gen } from './utils/random';
+	import { getLang } from './utils/lang';
+
+	const lang = getLang();
 
 	const END_TURN = 10;
 
-	const countries = [...c];
-
-	// const countries = c.filter(({ code }) =>
-	// 	['BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
-	// );
+	const countries = c.map(({ names, ...country }) => ({
+		...country,
+		name: names[lang] ?? country.name
+	}));
 
 	let turn = 0;
 
 	const diff = differenceInDays(new Date(), new Date(2022, 0, 1, 0, 0, 0, 0));
 
-	const countryPool = c.filter((country) => !country.disabled);
+	const countryPool = countries
+		// .filter(({ code }) =>
+		// 	['AT', 'BR', 'AR', 'CO', 'CH', 'PE', 'VZ', 'ES', 'PT', 'CU', 'CR'].includes(code)
+		// )
+		.filter((country) => !country.disabled);
 
 	const indexes = gen(countryPool.length, diff, END_TURN + 1);
 
