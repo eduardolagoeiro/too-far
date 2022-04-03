@@ -4,7 +4,7 @@
 		"right-answer": "Resposta certa:"
 	},
 	"enunciate": {
-		"content": "Sua localização: {{country}}. O páis desenhado está à {{km}} Km de distância."
+		"content": "Sua localização, {{country}}, está à {{km}} Km de distância."
 	},
 	"answers": {
 		"guess": "Tentativa:",

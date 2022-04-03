@@ -6,6 +6,7 @@ const defaultLang = 'en';
 let config;
 
 function getLang() {
+	if (import.meta.env.VITE_LANG) return import.meta.env.VITE_LANG;
 	try {
 		const l = navigator.language.split('-')[0];
 		if (['en', 'pt'].includes(l)) {
