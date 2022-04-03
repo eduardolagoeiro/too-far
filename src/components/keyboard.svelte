@@ -83,6 +83,7 @@
 		border-radius: 0.2rem;
 		text-align: center;
 		line-height: 2rem;
+		height: 2rem;
 		grid-column-end: span 2;
 		justify-content: center;
 		align-items: center;
