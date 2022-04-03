@@ -12,6 +12,8 @@
 	import { gen } from './utils/random';
 	import { lang, t } from './lang';
 
+	document.getElementById('splash')?.remove();
+
 	const END_TURN = 10;
 
 	const countries = c.map(({ names, ...country }) => ({

@@ -12,10 +12,10 @@
 - [x] transition svg
 - [x] fix austria svg
 - [x] i18n
+- [x] add splash screen
 
 - [ ] total points
 - [ ] persistance
 - [ ] highscore
-- [ ] add splash screen
 - [ ] add modal with results (remove animation)
 - [ ] logic in backend with versus game
