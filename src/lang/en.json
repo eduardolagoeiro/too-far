@@ -1,0 +1,18 @@
+{
+	"pre-enunciate": {
+		"on-point": "On point!",
+		"right-answer": "Right answer was:"
+	},
+	"enunciate": {
+		"content": "New guess is {{km}} Km from {{country}}."
+	},
+	"answers": {
+		"guess": "Guess:",
+		"answer": "Answer:",
+		"points": "Points:"
+	},
+    "error": {
+        "already-been-chosen": "Country has already been chosen.",
+        "country-not-found": "Country not found."
+    }
+}

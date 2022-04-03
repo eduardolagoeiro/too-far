@@ -1,0 +1,18 @@
+{
+	"pre-enunciate": {
+		"on-point": "Na mosca!",
+		"right-answer": "Resposta certa:"
+	},
+	"enunciate": {
+		"content": "Sua localização: {{country}}. O páis desenhado está à {{km}} Km de distância."
+	},
+	"answers": {
+		"guess": "Tentativa:",
+		"answer": "Resposta:",
+		"points": "Pontuação:"
+	},
+    "error": {
+        "already-been-chosen": "Esse país já foi selecionado.",
+        "country-not-found": "País não encontrado."
+    }
+}

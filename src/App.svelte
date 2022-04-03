@@ -10,9 +10,7 @@
 	import { countries as c, sanitizeCountryName } from './utils/countries';
 	import Autocomplete from './components/autocomplete.svelte';
 	import { gen } from './utils/random';
-	import { getLang } from './utils/lang';
-
-	const lang = getLang();
+	import { lang, t } from './lang';
 
 	const END_TURN = 10;
 
@@ -91,7 +89,7 @@
 
 		const sanitezed = sanitizeCountryName(value);
 		if (selectedCountries.some(({ name }) => sanitizeCountryName(name) === sanitezed)) {
-			message = { content: 'Country has already been chosen.' };
+			message = { content: t('error', 'already-been-chosen') };
 			return;
 		}
 
@@ -102,7 +100,7 @@
 		const foundIndex = countryPool.findIndex(({ name }) => sanitizeCountryName(name) === sanitezed);
 
 		if (foundIndex === -1 && !blockedGuess) {
-			message = { content: 'Country not found.' };
+			message = { content: t('error', 'country-not-found') };
 			return;
 		}
 
@@ -157,7 +155,10 @@
 
 	$: distance = calcCrow(refCountry, targetCountry);
 
-	$: enunciate = `New guess is ${distance.toFixed(0)} Km from ${refCountry.name}.`;
+	$: enunciate = t('enunciate', {
+		km: distance.toFixed(0),
+		country: refCountry.name
+	});
 
 	$: gameEnded = turn === END_TURN ? true : false;
 </script>
@@ -178,7 +179,7 @@
 						{answer.guess.name}
 					</div>
 					<div class="name">
-						({answer.target.name})
+						{answer.target.name}
 					</div>
 					<div class="points" class:success={answer.points > 0} class:danger={answer.points < 0}>
 						{num(answer.points)}
@@ -187,9 +188,9 @@
 			{/each}
 			{#if answerHistoric.length > 0}
 				<li class="answer bold">
-					<div>Guess:</div>
-					<div>Answer:</div>
-					<div>Points:</div>
+					<div>{t('answers', 'guess')}</div>
+					<div>{t('answers', 'answer')}</div>
+					<div>{t('answers', 'points')}</div>
 				</li>
 			{/if}
 		</ul>
@@ -265,9 +266,10 @@
 			<span class="answer-text" class:right={isRight} class:wrong={!isRight}>
 				{#if preEnunciate?.show}
 					{#if isRight}
-						On point!{streak > 1 ? `(x${streak})` : ''}
+						{t('pre-enunciate', 'on-point')}{streak > 1 ? `(x${streak})` : ''}
 					{:else}
-						Right answer was: <span class="right-answer">{preEnunciate.country}</span>.
+						{t('pre-enunciate', 'right-answer')}
+						<span class="right-answer">{preEnunciate.country}</span>.
 					{/if}
 				{/if}
 			</span>
