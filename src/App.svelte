@@ -274,9 +274,11 @@
 				{/if}
 			</span>
 		{/key}
-		{#if enunciate && !gameEnded}
-			<span class="you-are" in:typewriter={{ speed: 2 }} out:slide>{enunciate}</span>
-		{/if}
+		{#key enunciate}
+			{#if enunciate && !gameEnded}
+				<span class="you-are" in:typewriter={{ speed: 2 }} out:slide>{enunciate}</span>
+			{/if}
+		{/key}
 	</div>
 	{#if !gameEnded}
 		<div out:slide>
