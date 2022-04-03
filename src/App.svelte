@@ -276,7 +276,9 @@
 		{/key}
 		{#key enunciate}
 			{#if enunciate && !gameEnded}
-				<span class="you-are" in:typewriter={{ speed: 2 }} out:slide>{enunciate}</span>
+				<div class="you-are-wrapper">
+					<span class="you-are" in:typewriter={{ speed: 2 }}>{enunciate}</span>
+				</div>
 			{/if}
 		{/key}
 	</div>
@@ -356,6 +358,10 @@
 		width: max(5vh, 24px);
 		height: max(5vh, 24px);
 		transition: transform;
+	}
+
+	.distance .you-are-wrapper {
+		min-height: 1.5rem;
 	}
 
 	.distance .you-are {
