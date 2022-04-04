@@ -13,9 +13,8 @@
 - [x] fix austria svg
 - [x] i18n
 - [x] add splash screen
+- [x] persistence
 
-- [ ] total points
-- [ ] persistance
+- [ ] add modal with share and total points
 - [ ] highscore
-- [ ] add modal with results (remove animation)
 - [ ] logic in backend with versus game

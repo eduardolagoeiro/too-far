@@ -12,6 +12,19 @@
 	import { gen } from './utils/random';
 	import { lang, t } from './lang';
 
+	const storageVersion = 'v0';
+	const storageName = 'store/game';
+	const diff = differenceInDays(new Date(), new Date(2022, 0, 1, 0, 0, 0, 0));
+
+	const persisted = (() => {
+		try {
+			const saved = JSON.parse(localStorage.getItem(storageName));
+			if (saved.diff === diff && saved.v === storageVersion) {
+				return saved;
+			}
+		} catch (err) {}
+	})();
+
 	document.getElementById('splash')?.remove();
 
 	const END_TURN = 10;
@@ -21,9 +34,7 @@
 		name: names[lang] ?? country.name
 	}));
 
-	let turn = 0;
-
-	const diff = differenceInDays(new Date(), new Date(2022, 0, 1, 0, 0, 0, 0));
+	let turn = persisted?.turn ?? 0;
 
 	const countryPool = countries
 		// .filter(({ code }) =>
@@ -33,7 +44,7 @@
 
 	const indexes = gen(countryPool.length, diff, END_TURN + 1);
 
-	let selectedCountries = [];
+	let selectedCountries = persisted?.selectedCountries ?? [];
 
 	const AWAIT_ANIMATION = 1000;
 
@@ -58,7 +69,7 @@
 	const blockedCountries = [...countries].filter((country) => !!country.disabled);
 
 	let refCountry = countryPool[indexes[indexes.length - 1]];
-	let targetCountry = countryPool[indexes[turn]];
+	let targetCountry = countryPool[indexes[turn - (turn === END_TURN ? 1 : 0)]];
 
 	let IMG_ANIM_X_OFFSET = 10 * (refCountry.longitude - targetCountry.longitude);
 	let IMG_ANIM_Y_OFFSET = 10 * (refCountry.latitude - targetCountry.latitude);
@@ -69,14 +80,14 @@
 		)
 	);
 
-	let answerHistoric = [];
+	let answerHistoric = persisted?.answerHistoric ?? [];
 	let answersList;
 
 	let answering = false;
 	let plus;
-	let isRight = false;
-	let preEnunciate;
-	let streak = 0;
+	let isRight = persisted?.isRight ?? false;
+	let preEnunciate = persisted?.preEnunciate;
+	let streak = persisted?.streak ?? 0;
 
 	let message = { content: '' };
 
@@ -163,6 +174,22 @@
 	});
 
 	$: gameEnded = turn === END_TURN ? true : false;
+
+	$: {
+		localStorage.setItem(
+			storageName,
+			JSON.stringify({
+				turn,
+				diff,
+				selectedCountries,
+				answerHistoric,
+				isRight,
+				preEnunciate,
+				streak,
+				v: storageVersion
+			})
+		);
+	}
 </script>
 
 <div class="container">
@@ -268,7 +295,7 @@
 			<span class="answer-text" class:right={isRight} class:wrong={!isRight}>
 				{#if preEnunciate?.show}
 					{#if isRight}
-						{t('pre-enunciate', 'on-point')}{streak > 1 ? `(x${streak})` : ''}
+						{t('pre-enunciate', 'on-point')}{streak > 1 ? ` (x${streak})` : ''}
 					{:else}
 						{t('pre-enunciate', 'right-answer')}
 						<span class="right-answer">{preEnunciate.country}</span>.
