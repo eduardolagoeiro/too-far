@@ -228,7 +228,7 @@
 					on:click={() =>
 						navigator.share({
 							text:
-								window.location.href +
+								'mund.ooo' +
 								'\n' +
 								answerHistoric.map(({ points }) => colorToEmoji[pointsToColor(points)]).join('') +
 								'\n' +
