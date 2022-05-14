@@ -9,7 +9,10 @@
 	"answers": {
 		"guess": "Guess:",
 		"answer": "Answer:",
-		"points": "Points:"
+		"points": "Points:",
+		"show": "Show answers",
+		"share": "Share",
+		"share-text": "{{points}} points"
 	},
     "error": {
         "already-been-chosen": "Country has already been chosen.",

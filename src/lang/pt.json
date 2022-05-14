@@ -9,7 +9,10 @@
 	"answers": {
 		"guess": "Tentativa:",
 		"answer": "Resposta:",
-		"points": "Pontuação:"
+		"points": "Pontuação:",
+		"show": "Ver respostas",
+		"share": "Compartilhar",
+		"share-text": "{{points}} pontos"
 	},
     "error": {
         "already-been-chosen": "Esse país já foi selecionado.",

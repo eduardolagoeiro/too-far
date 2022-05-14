@@ -95,12 +95,14 @@
 		grid-row: 2;
 		background-color: unset;
 		border: none;
+		pointer-events: none;
 	}
 
 	.letter-wrapper.spacer-2 {
 		grid-row: 3;
 		background-color: unset;
 		border: none;
+		pointer-events: none;
 	}
 
 	.letter-wrapper.backspace {

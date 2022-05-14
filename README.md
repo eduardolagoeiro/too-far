@@ -14,7 +14,7 @@
 - [x] i18n
 - [x] add splash screen
 - [x] persistence
+- [x] share and total points
 
-- [ ] add modal with share and total points
 - [ ] highscore
 - [ ] logic in backend with versus game

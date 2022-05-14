@@ -190,39 +190,79 @@
 			})
 		);
 	}
+
+	function pointsToColor(points) {
+		if (points <= 0) return 'red';
+		if (points === 100) return 'green';
+		if (points < 50) return 'orange';
+		return 'yellow';
+	}
+
+	const colorToEmoji = {
+		red: '🟥',
+		green: '🟩',
+		orange: '🟧',
+		yellow: '🟨'
+	};
+
+	let openHistory = false;
 </script>
 
+<div class="turns">
+	{#each Array(END_TURN) as _, i}
+		<div
+			class={`turn ${answerHistoric[i] ? 'bg-' + pointsToColor(answerHistoric[i].points) : ''}`}
+			class:active={i === turn}
+		/>
+	{/each}
+</div>
 <div class="container">
-	<div class="total-points" class:danger={totalPoints < 0}>
-		{#if totalPoints && false}
-			<span transition:fly={{ y: 20 }} style="position: absolute;">
-				{totalPoints}
-			</span>
-		{/if}
-	</div>
 	{#if gameEnded}
-		<ul class="answers" bind:this={answersList} in:slide>
-			{#if answerHistoric.length > 0}
-				<li class="answer bold">
-					<div>{t('answers', 'guess')}</div>
-					<div>{t('answers', 'answer')}</div>
-					<div>{t('answers', 'points')}</div>
-				</li>
+		<div class="total-points-title">{t('answers', 'points')}</div>
+		<span class={`total-points-value ${pointsToColor(totalPoints / turn)}`}>
+			{totalPoints}
+		</span>
+		<div class="history-btn-wrapper">
+			{#if navigator.share}
+				<button
+					on:click={() =>
+						navigator.share({
+							text:
+								window.location.href +
+								'\n' +
+								answerHistoric.map(({ points }) => colorToEmoji[pointsToColor(points)]).join('') +
+								'\n' +
+								t('answers', 'share-text', { points: totalPoints }),
+							title: 'mund.ooo'
+						})}>{t('answers', 'share')}</button
+				>
 			{/if}
-			{#each answerHistoric as answer, i}
-				<li class="answer">
-					<div class="name">
-						{answer.guess.name}
-					</div>
-					<div class="name">
-						{answer.target.name}
-					</div>
-					<div class="points" class:success={answer.points > 0} class:danger={answer.points < 0}>
-						{num(answer.points)}
-					</div>
-				</li>
-			{/each}
-		</ul>
+			<button on:click={() => (openHistory = !openHistory)}>{t('answers', 'show')}</button>
+		</div>
+		{#if openHistory}
+			<ul class="answers" bind:this={answersList} in:slide out:slide>
+				{#if answerHistoric.length > 0}
+					<li class="answer bold">
+						<div>{t('answers', 'guess')}</div>
+						<div>{t('answers', 'answer')}</div>
+						<div>{t('answers', 'points')}</div>
+					</li>
+				{/if}
+				{#each answerHistoric as answer, i}
+					<li class="answer">
+						<div class="name">
+							{answer.guess.name}
+						</div>
+						<div class="name">
+							{answer.target.name}
+						</div>
+						<div class={`points ${pointsToColor(answer.points)}`}>
+							{num(answer.points)}
+						</div>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 	{/if}
 	<div class="guessing-img-wrapper">
 		{#key targetCountry}
@@ -284,8 +324,7 @@
 						fadeT: 0.8
 					}}
 					on:introend={() => (plus = undefined)}
-					class="plus-points"
-					class:danger={plus < 0}
+					class={`plus-points ${pointsToColor(plus)}`}
 				>
 					{num(plus)}
 				</span>
@@ -335,6 +374,23 @@
 		--warning-color: #f0ad4e;
 		--main-color: #5bc0de;
 		--bg-color: #aaaaaa;
+		--bg-dark-color: #777777;
+	}
+
+	.history-btn-wrapper button {
+		background-color: white;
+		font-size: 1rem;
+	}
+
+	.total-points-title {
+		font-size: 1.5rem;
+		margin: 0.5rem;
+	}
+
+	.total-points-value {
+		font-size: 2rem;
+		margin: 0.5rem;
+		color: var(--success-color);
 	}
 
 	.total-points {
@@ -343,22 +399,15 @@
 		color: var(--main-color);
 	}
 
-	.total-points.danger {
-		color: var(--danger-color);
-	}
-
 	.plus-points {
 		font-size: 1.5rem;
 		position: absolute;
 		color: var(--success-color);
 	}
 
-	.plus-points.danger {
-		color: var(--danger-color);
-	}
-
 	.container {
 		margin: 1vh auto;
+		margin-top: 0;
 		max-width: min(95vmin, 600px);
 		display: flex;
 		flex-direction: column;
@@ -467,11 +516,53 @@
 		overflow-x: hidden;
 	}
 
-	.answer .points.success {
+	.turns {
+		width: 100%;
+		height: 1vh;
+		display: flex;
+		background-color: var(--bg-color);
+		gap: 2px;
+	}
+
+	.turn {
+		height: 100%;
+		width: 100%;
+		background-color: var(--bg-dark-color);
+	}
+
+	.turn.active {
+		background-color: var(--main-color);
+	}
+
+	.red {
+		color: var(--danger-color);
+	}
+
+	.bg-red {
+		background-color: var(--danger-color);
+	}
+
+	.orange {
+		color: goldenrod;
+	}
+
+	.bg-orange {
+		background-color: goldenrod;
+	}
+
+	.green {
 		color: var(--success-color);
 	}
 
-	.answer .points.danger {
-		color: var(--danger-color);
+	.bg-green {
+		background-color: var(--success-color);
+	}
+
+	.yellow {
+		color: var(--warning-color);
+	}
+
+	.bg-yellow {
+		background-color: var(--warning-color);
 	}
 </style>
