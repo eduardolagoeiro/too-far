@@ -208,6 +208,7 @@
 	let openHistory = false;
 </script>
 
+<h1>QA</h1>
 <div class="turns">
 	{#each Array(END_TURN) as _, i}
 		<div
